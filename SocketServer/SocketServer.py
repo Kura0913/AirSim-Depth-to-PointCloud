@@ -1,10 +1,11 @@
+from SocketServer import JobDispatcher
 from threading import Thread
 import socket
 import json
 
 
 class SocketServer(Thread):
-    def __init__(self, job_dispatcher, host, port=40005):
+    def __init__(self, job_dispatcher : JobDispatcher, host, port=40005):
         super().__init__()
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # The following setting is to avoid the server crash. So, the binded address can be reused

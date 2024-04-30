@@ -7,9 +7,9 @@ necessary_table_to_create = {
             CREATE TABLE point_cloud_info
             (
                 point_id INTEGER PRIMARY KEY,
-                point_x REAL,
-                point_y REAL,
-                point_z REAL
+                point_x FLOAT,
+                point_y FLOAT,
+                point_z FLOAT
 
             );
         """,
@@ -23,7 +23,28 @@ necessary_table_to_create = {
                 point_B INTEGER
 
             );
+        """,
+    "drone_info":
         """
+            CREATE TABLE drone_info
+            (
+                drone_id INTEGER PRIMARY KEY,
+                name VARCHAR(255)
+
+            )
+        """,
+    "camera_info":
+        """
+            CREATE TABLE drone_info
+            (
+                drone_id INTEGER,
+                camera_name VARCHAR(255),
+                fov INTEGER,
+                width INTEGER,
+                hieght INTEGER
+
+            )
+        """,
 }
 
 

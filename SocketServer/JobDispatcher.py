@@ -1,12 +1,12 @@
-from ServerCommand.Depth2PointCloud import Depth2PointCloud
+from ServerCommand.StoreImage import StoreImage
 
 class JobDisPatcher:
     def __init__(self):
         self.action = {
-            "store_image":Depth2PointCloud()
+            "store":StoreImage
         }
 
     def job_execute(self, command, parameters):
-        execute_result = self.action[command].execute(parameters)
+        execute_result = self.action[command]().execute(parameters)
 
         return execute_result
