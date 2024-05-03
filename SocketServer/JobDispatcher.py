@@ -1,9 +1,9 @@
-from ServerCommand.StoreImage import StoreImage
+from ServerCommand.StoreImage import StorePointCloud
 
 class JobDisPatcher:
     def __init__(self):
         self.action = {
-            "store":StoreImage
+            "store":StorePointCloud
         }
 
     def job_execute(self, command, parameters):

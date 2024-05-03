@@ -29,9 +29,27 @@ necessary_table_to_create = {
             CREATE TABLE drone_info
             (
                 drone_id INTEGER PRIMARY KEY,
-                name VARCHAR(255)
+                name VARCHAR(255),
+                fov INTEGER,
+                image_width INTEGER,
+                image_height INTEGER
             )
-        """
+        """,
+    "camera_info":
+    """
+            CREATE TABLE camera_info
+            (
+                drone_id INTEGER,
+                camera_face INTEGER,
+                translation_x FLOAT,
+                translation_y FLOAT,
+                translation_z FLOAT,
+                quaternion_w FLOAT,
+                quaternion_x FLOAT,
+                quaternion_y FLOAT,
+                quaternion_z FLOAT
+            )
+    """
 }
 
 

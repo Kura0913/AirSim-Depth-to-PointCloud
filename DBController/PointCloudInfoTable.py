@@ -2,18 +2,27 @@ from DBController.DBConnection import DBConnection
 
 class PointCloudInfoTable:
     def insert_point_clouds(self, point_cloud_list):
+        '''
+        point_cloud_list = [
+        [x_val, y_val, z_val]
+        ]
+        '''
         with DBConnection() as connection:
             for point_cloud in point_cloud_list:
                 if self.select_a_point(point_cloud[0], point_cloud[1], point_cloud[2]) >= 0:
                     continue
-                command = f"INSERT INTO drone_info (point_x, point_y, point_z) VALUES  ('{point_cloud[0]}', '{point_cloud[1]}', '{point_cloud[2]}');"
+                command = f"INSERT INTO point_cloud_info (point_x, point_y, point_z) VALUES  ('{point_cloud[0]}', '{point_cloud[1]}', '{point_cloud[2]}');"
                 cursor = connection.cursor()
                 cursor.execute(command)
         
-        connection.commit()
+            connection.commit()
 
     def select_a_point(self, point_cloud):
-        command = f"SELECT * FROM student_info WHERE x ='{point_cloud[0]}' AND y ='{point_cloud[1]} AND z ='{point_cloud[2]};"
+        '''
+        Return : point_id, 
+        if the point is not exist, return -1.
+        '''
+        command = f"SELECT * FROM point_cloud_info WHERE x ='{point_cloud[0]}' AND y ='{point_cloud[1]} AND z ='{point_cloud[2]};"
         with DBConnection() as connection:
             cursor = connection.cursor()
             cursor.execute(command)
@@ -25,6 +34,11 @@ class PointCloudInfoTable:
         
 
     def select_all_points(self):
+        '''
+        Return : {
+        "point_id" : [x_val, y_val, z_val]
+        }
+        '''
         point_dict = {}
         command = "SELECT * FROM point_cloud_info;"
         with DBConnection() as connection:
