@@ -27,12 +27,16 @@ class AirsimTools:
         return np.dot(Rotation.from_quat(quaternion).as_matrix(), position)
     
 
-    def relative2absolute(target_position, body_position, body_quaternion):
+    def relative2absolute(target_position, vehicle_position, vehicle_quaternion):
         '''
-        target_position: the point get from sensor is relative position
-        body_position: vehicle pose's position
-        body_quaternion: vehicle pose's quaternion
+        target_position: [x_val, y_val, z_val]the point get from sensor is relative position
+        body_position: [x_val, y_val, z_val]vehicle pose's position
+        body_quaternion: [w_val, x_val, y_val, z_val]vehicle pose's quaternion
         '''
-        rotated_position = np.dot(Rotation.from_quat(body_quaternion).as_matrix(), target_position)
+        relative_position_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), target_position)
 
-        return body_position + rotated_position
+        return vehicle_position + relative_position_without_rotate
+    
+    def ned2cartesian(n_val, e_val, d_val):
+        return [e_val, n_val, -d_val]
+    
