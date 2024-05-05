@@ -19,12 +19,12 @@ class AirsimTools:
 
         return [x, y, z]
     
-    def quaternion2ratate(quaternion, position):
+    def quaternion2ratate(quaternion):
         '''
         quaternion: vehicle pose's quaternion
         position: vehicle pose's position
         '''
-        return np.dot(Rotation.from_quat(quaternion).as_matrix(), position)
+        return Rotation.from_quat(quaternion).as_matrix()
     
 
     def relative2absolute(target_position, vehicle_position, vehicle_quaternion):

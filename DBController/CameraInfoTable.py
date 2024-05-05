@@ -36,4 +36,4 @@ class CameraInfoTable:
         try:
             return result
         except Exception as e:
-            return -1
+            return []

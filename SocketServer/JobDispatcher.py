@@ -1,9 +1,11 @@
-from ServerCommand.StoreImage import StorePointCloud
+from ServerCommand.GetCameraInfo import GetCameraInfo
+from ServerCommand.SavePointCloud import SavePointCloud
 
 class JobDisPatcher:
     def __init__(self):
         self.action = {
-            "store":StorePointCloud
+            "init":GetCameraInfo,
+            "save":SavePointCloud
         }
 
     def job_execute(self, command, parameters):
