@@ -1,11 +1,24 @@
 from DBController.DBConnection import DBConnection
 
 class CameraInfoTable:
+    '''
+    drone_id INTEGER,\n
+    camera_face INTEGER,\n
+    translation_x FLOAT,\n
+    translation_y FLOAT,\n
+    translation_z FLOAT,\n
+    quaternion_w FLOAT,\n
+    quaternion_x FLOAT,\n
+    quaternion_y FLOAT,\n
+    quaternion_z FLOAT\n
+'''
     def insert_a_camera(self, parameters):
         '''
         parameters:{
             camera_face:{
-                drone_id, translation(List), quaternion(List)
+                drone_id : integer,\n 
+                translation: [x_val, y_val, z_val],\n 
+                quaternion: [z_val, x_val, y_val, z_val]
             }
         }
         '''        
@@ -20,9 +33,7 @@ class CameraInfoTable:
 
     def select_a_camera(self, drone_id, camera_face):
         '''
-        Return : {
-        translation_x, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z
-        }
+        Return : [translation_x, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z](list)
         '''
         command = f"SELECT * FROM camera_info WHERE drone_id ='{drone_id}' AND camera_face ='{camera_face};"
         with DBConnection() as connection:
@@ -37,3 +48,10 @@ class CameraInfoTable:
             return result
         except Exception as e:
             return []
+        
+    def delete_all_camera(self):
+        command = "DELETE FROM camera_info;"
+        with DBConnection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()

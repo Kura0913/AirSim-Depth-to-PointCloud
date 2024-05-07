@@ -33,3 +33,10 @@ class ColorInfoTable:
             point_color_dict[row['point_id']] = [row['point_r'], row['point_g'], row['point_b']]
 
         return point_color_dict
+    
+    def delete_all_colors(self):
+        command = "DELETE FROM color_info;"
+        with DBConnection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()

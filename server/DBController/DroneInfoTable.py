@@ -24,3 +24,10 @@ class DroneInfoTable:
             drone_info = [row['drone_id'], row['fov'], row['width'], row['height']]
 
         return drone_info
+    
+    def delete_all_drone(self):
+        command = "DELETE FROM drone_info;"
+        with DBConnection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()

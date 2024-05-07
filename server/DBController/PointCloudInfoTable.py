@@ -19,7 +19,7 @@ class PointCloudInfoTable:
 
     def select_a_point(self, point_cloud):
         '''
-        Return : point_id, 
+        Return : point_id,\n 
         if the point is not exist, return -1.
         '''
         command = f"SELECT * FROM point_cloud_info WHERE x ='{point_cloud[0]}' AND y ='{point_cloud[1]} AND z ='{point_cloud[2]};"
@@ -49,3 +49,10 @@ class PointCloudInfoTable:
             point_dict[row['point_id']] = [row['x'], row['y'], row['z']]
 
         return point_dict
+    
+    def delete_all_points(self):
+        command = "DELETE FROM point_cloud_info;"
+        with DBConnection() as connection:
+            cursor = connection.cursor()
+            cursor.execute(command)
+            connection.commit()
