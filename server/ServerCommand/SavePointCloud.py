@@ -43,7 +43,7 @@ class SavePointCloud:
             return{"status" : "fail", "message" : "save point cloud failed, please check the previously sent parameters.", "parameters" : parameters}
     
     def set_drone_info(self, parameters):
-        drone_info = DroneInfoTable.select_a_drone(parameters['drone_name'])
+        drone_info = DroneInfoTable().select_a_drone(parameters['drone_name'])
         self.fov = drone_info[0]
         self.width = drone_info[1]
         self.height = drone_info[2]
@@ -57,7 +57,7 @@ class SavePointCloud:
     def start_save_point_cloud(self, parameters, drone_id):
         point_cloud_list = []
 
-        drone_position = AirsimTools.ned2cartesian(parameters['drone_position'][0], parameters['drone_position'][1], parameters['drone_position'][2]) # cartesian coordinate system
+        drone_position = AirsimTools().ned2cartesian(parameters['drone_position'][0], parameters['drone_position'][1], parameters['drone_position'][2]) # cartesian coordinate system
         drone_quaternion = [parameters['drone_quaternion'][0], parameters['drone_quaternion'][1], parameters['drone_quaternion'][2], parameters['drone_quaternion'][3]]
 
         ### Intrinsic parameters matrix
@@ -69,7 +69,7 @@ class SavePointCloud:
         ])
 
         for camera_face, depth_image in parameters["depth_image"].items():
-            camera_info = CameraInfoTable.select_a_camera(drone_id, int(camera_face))
+            camera_info = CameraInfoTable().select_a_camera(drone_id, int(camera_face))
 
             depth_image = airsim.list_to_2d_float_array(depth_image, self.width, self.height)
             depth_image = depth_image.reshape(self.height, self.width, 1)
@@ -81,7 +81,7 @@ class SavePointCloud:
             # translation matrix
             t = np.array([[camera_info[0]], [camera_info[1]], [camera_info[2]]])
             # rotate matrix
-            r = AirsimTools.quaternion2ratate(np.array([camera_info[3], camera_info[4], camera_info[5], camera_info[6]]))
+            r = AirsimTools().quaternion2ratate(np.array([camera_info[3], camera_info[4], camera_info[5], camera_info[6]]))
             
             r_T = np.hstack((r, t))
             r_T = np.vstack((r_T, np.array([0, 0, 0, 1])))    
@@ -100,8 +100,8 @@ class SavePointCloud:
                     point_cloud_matrix = z * camera_matrix_inv.dot(pixel_matrix)
                     point_cloud_info = [point_cloud_matrix[0], point_cloud_matrix[1], point_cloud_matrix[2]] # relative position
                     # convert relative position to abs position
-                    point_cloud_info = AirsimTools.relative2absolute(point_cloud_info, drone_position, drone_quaternion)
+                    point_cloud_info = AirsimTools().relative2absolute(point_cloud_info, drone_position, drone_quaternion)
                     if point_cloud_info not in point_cloud_list:
                         point_cloud_list.append(point_cloud_info)
 
-        PointCloudInfoTable.insert_point_clouds(point_cloud_list)
+        PointCloudInfoTable().insert_point_clouds(point_cloud_list)

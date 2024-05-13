@@ -4,11 +4,11 @@ class GetCameraInfo:
     def __init__(self):
         self.camera_dict = {
             "front_camera":0,
-            "back_camera":1,
-            "right_camera":2,
-            "left_camera":3,
-            "up_camera":4,
-            "down_camera":5
+            # "back_camera":1,
+            # "right_camera":2,
+            # "left_camera":3,
+            # "up_camera":4,
+            # "down_camera":5
         }
 
     def execute(self, airsim_client:airsim.MultirotorClient, drone_name = "", camera_list = []):
@@ -36,17 +36,19 @@ class GetCameraInfo:
         parameters = {"drone_name" : drone_name}
         parameters = self.get_image_size(parameters)
         parameters = self.get_camera_info(airsim_client, drone_name, parameters)
+
+        return parameters
         
     def get_camera_info(self, airsim_client:airsim.MultirotorClient, drone_name, parameters):
         parameters["camera"] = {}
         try:
             for camera_name, camera_face in self.camera_dict.items():
                 pose = airsim_client.simGetCameraInfo(camera_name, drone_name).pose
-                if not parameters["fov"]:
+                if "fov" not in parameters.keys():
                     parameters["fov"] = airsim_client.simGetCameraInfo(camera_name, drone_name).fov
-                if not parameters["camera"]:
+                if "camera" not in parameters.keys():
                     parameters["camera"] = {}
-                if not parameters["camera"][camera_face]:
+                if camera_face not in parameters["camera"].keys():
                     parameters["camera"][camera_face] = {}
                 parameters["camera"][camera_face]["translation_x"] = pose.position.x_val
                 parameters["camera"][camera_face]["translation_y"] = pose.position.y_val
@@ -55,6 +57,7 @@ class GetCameraInfo:
                 parameters["camera"][camera_face]["quaternion_x"] = pose.orientation.x_val
                 parameters["camera"][camera_face]["quaternion_y"] = pose.orientation.y_val
                 parameters["camera"][camera_face]["quaternion_z"] = pose.orientation.z_val
+            print("Get camera info success!!")
         except:
             print(f"The camera:{camera_name} is not exist.")
 

@@ -1,7 +1,8 @@
 import socket 
 import json
+import sys
 
-BUFFER_SIZE = 1940
+BUFFER_SIZE = 65535
 
 
 class SocketClient:
@@ -11,6 +12,7 @@ class SocketClient:
     # send command to server
     def send_command(self, command, parameters):
         send_data = {'command': command, 'parameters': parameters}
+        print(f"parameters\' size:{sys.getsizeof(json.dumps(send_data).encode())}")
         self.client_socket.send(json.dumps(send_data).encode())
         print(f"The client sent data => {send_data}")
     # wait response from server

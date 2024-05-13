@@ -9,7 +9,7 @@ port = 40005
 
 action_dict = {
     "init" : GetCameraInfo,
-    "start": SavePointCloud
+    "save": SavePointCloud
 }
 
 def init_setting_airsim_client():
@@ -21,7 +21,7 @@ def init_setting_airsim_client():
 def input_selection():
     print("========================================")
     print("init: Initial setting for drone and camera.")
-    print("start: Start get point cloud infomation.")
+    print("save: Start get point cloud infomation.")
     print("exit: close client.")
 
     selection = input("Please select a function to execute:")
@@ -30,6 +30,7 @@ def input_selection():
 
 def main():
     airsim_client = init_setting_airsim_client()
+    host = input("Please setting the server ip:")
     client = SocketClient(host, port)
 
     selection = "init"    
@@ -37,12 +38,12 @@ def main():
     func = action_dict[selection]()
     parameters = func.execute(airsim_client)
     client.send_command(selection, parameters)
+    client.wait_response()
     drone_name = parameters["drone_name"]
     camera_list = []
 
-    for camera_face, _ in parameters["camera"]:
+    for camera_face, _ in parameters["camera"].items():
         camera_list.append(camera_face)
-    result = client.wait_response()
 
     while True:
         selection = input_selection()
@@ -58,3 +59,6 @@ def main():
             if parameters:
                 client.send_command(selection, parameters)
                 result = client.wait_response()
+
+if __name__ == "__main__":
+    main()

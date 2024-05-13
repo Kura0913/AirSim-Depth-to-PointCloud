@@ -30,6 +30,8 @@ class SavePointCloud:
 
         parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
         parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
+
+        return parameters
     
     def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters):
         pose = airsim_client.simGetVehiclePose(drone_name)
@@ -45,7 +47,7 @@ class SavePointCloud:
         images = airsim_client.simGetImages(depth_image_request_list, drone_name)
 
         for idx, image in enumerate(images):
-            if not parameters["depth_image"]:
+            if "depth_image" not in parameters.keys():
                 parameters["depth_image"] = {}
             parameters["depth_image"][camera_list[idx]] = image.image_data_float
         
@@ -58,7 +60,7 @@ class SavePointCloud:
         images = airsim_client.simGetImages(depth_image_request_list, drone_name)
 
         for idx, image in enumerate(images):
-            if not parameters["rgb_image"]:
+            if "rgb_image" not in parameters.keys():
                 parameters["rgb_image"] = {}
             parameters["rgb_image"][camera_list[idx]] = image.image_data_uint8
         

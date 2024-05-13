@@ -4,7 +4,7 @@ from scipy.spatial import cKDTree
 
 class PointCloud:
     # import AirSim lidar's data of cloud points, shape the data to (x, y, z) format
-    def parse_point_cloud(point_ary):
+    def parse_point_cloud(self, point_ary):
         x_points = []
         y_points = []
         z_points = []
@@ -16,7 +16,7 @@ class PointCloud:
 
         return x_points, y_points, z_points
     
-    def circle_touching_point(point, cloud_points_dict, r):
+    def circle_touching_point(self, point, cloud_points_dict, r):
         '''
         Check if the point is close to our known point cloud
         '''

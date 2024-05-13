@@ -27,22 +27,24 @@ class GetCameraInfo:
         }
         '''
 
-        if len(DroneInfoTable.select_a_drone(parameters["drone_name"])) <= 0:
-            DroneInfoTable.insert_a_drone(parameters["drone_name"], parameters["fov"], parameters["width"], parameters["height"])
-        drone_id = DroneInfoTable.select_a_drone(parameters["drone_name"])[0]
+        if len(DroneInfoTable().select_a_drone(parameters["drone_name"])) <= 0:
+            DroneInfoTable().insert_a_drone(parameters["drone_name"], parameters["fov"], parameters["width"], parameters["height"])
+            print(f"Drone: {parameters['drone_name']} info save success!!")
+        print(DroneInfoTable().select_a_drone(parameters["drone_name"]))
+        drone_id = DroneInfoTable().select_a_drone(parameters["drone_name"])[0]
         camera_dict = {}
         for camera_face, camera_info in parameters["camera"].items():
             camera_info_list = [] # [translation_x, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z]
             for _, value in camera_info.items():
                 camera_info_list.append(value)
             
-            if len(CameraInfoTable.select_a_camera(drone_id, camera_face)) <= 0:
+            if len(CameraInfoTable().select_a_camera(drone_id, camera_face)) <= 0:
                 camera_dict[camera_face] = {}
                 camera_dict[camera_face]["drone_id"] = drone_id
                 camera_dict[camera_face]["translation"] = camera_info_list[:3]
                 camera_dict[camera_face]["quaternion"] = camera_info_list[3:]
                 
-        CameraInfoTable.insert_a_camera(drone_id, camera_dict)
+        CameraInfoTable().insert_a_camera(camera_dict)
         result_message = {"status" : "ok", "message" : "Initial settings completed."}
 
         return result_message
