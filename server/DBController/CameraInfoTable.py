@@ -24,7 +24,7 @@ class CameraInfoTable:
         '''        
         with DBConnection() as connection:
             for camera_face, camera_info in parameters.items():
-                command = f"INSERT INTO camera_info (drone_id, camera_face, translation_x,, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z) VALUES  ('{camera_info['drone_id']}', '{camera_face}', '{camera_info['translation'][0]}', '{camera_info['translation'][1]}', '{camera_info['translation'][2]}', '{camera_info['quaternion'][0]}', '{camera_info['quaternion'][1]}', '{camera_info['quaternion'][2]}', '{camera_info['quaternion'][3]}');"
+                command = f"INSERT INTO camera_info (drone_id, camera_face, translation_x, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z) VALUES  ('{camera_info['drone_id']}', '{camera_face}', '{camera_info['translation'][0]}', '{camera_info['translation'][1]}', '{camera_info['translation'][2]}', '{camera_info['quaternion'][0]}', '{camera_info['quaternion'][1]}', '{camera_info['quaternion'][2]}', '{camera_info['quaternion'][3]}');"
                 cursor = connection.cursor()
                 cursor.execute(command)
             
@@ -35,7 +35,7 @@ class CameraInfoTable:
         '''
         Return : [translation_x, translation_y, translation_z, quaternion_w, quaternion_x, quaternion_y, quaternion_z](list)
         '''
-        command = f"SELECT * FROM camera_info WHERE drone_id ='{drone_id}' AND camera_face ='{camera_face};"
+        command = f"SELECT * FROM camera_info WHERE drone_id='{drone_id}' AND camera_face='{camera_face}';"
         with DBConnection() as connection:
             cursor = connection.cursor()
             cursor.execute(command)
