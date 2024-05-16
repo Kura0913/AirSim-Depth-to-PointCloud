@@ -3,7 +3,7 @@ from threading import Thread
 import socket
 import json
 
-BUFFER_SIZE = 33554432
+BUFFER_SIZE = 67108864
 
 class SocketServer(Thread):
     def __init__(self, job_dispatcher, host, port=40005):
@@ -38,7 +38,7 @@ class SocketServer(Thread):
         keep_going = True
         while keep_going:
             try:
-                message = connection.recv(1024).strip().decode()
+                message = connection.recv(BUFFER_SIZE).strip().decode()
                 message = json.loads(message)
             except Exception as e:
                 print(f"Exeption happened {e}, {address}")
@@ -47,7 +47,7 @@ class SocketServer(Thread):
                 if not message['parameters']:
                     keep_going = False
                 else:                    
-                    print(f'The server received message=>{message}')
+                    # print(f'The server received message=>{message}')
                     result_message = self.job_dispatcher.job_execute(message["command"], message["parameters"])
                     connection.send(json.dumps(result_message).encode())
                     print(f"The server sent data =>{result_message}")

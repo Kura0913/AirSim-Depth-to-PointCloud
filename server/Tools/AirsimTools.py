@@ -35,9 +35,9 @@ class AirsimTools:
         ---------------------------------------------------------
         Return : [x_val, y_val, z_val]
         '''
-        relative_position_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), target_position)
-
-        return vehicle_position + relative_position_without_rotate
+        relative_position_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), np.array(target_position))
+        absolute_position = np.array(vehicle_position) + relative_position_without_rotate.T
+        return absolute_position[0].tolist()
     
     def ned2cartesian(self, n_val, e_val, d_val):
         ned = self.negative_zero_to_zero(n_val, e_val, d_val)

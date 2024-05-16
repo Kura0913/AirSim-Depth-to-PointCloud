@@ -58,7 +58,7 @@ def main():
                 print(e)
             if parameters:
                 client.send_command(selection, parameters)
-                result = client.wait_response()
+                recv_message = client.wait_response()
 
 if __name__ == "__main__":
     main()

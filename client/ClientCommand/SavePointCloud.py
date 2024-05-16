@@ -17,11 +17,18 @@ class SavePointCloud:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         ----------------------------------------------
         Return:{
-            drone_name : (Char)
-            drone_position : [x_val, y_val, z_val] (NED)
-            drone_quaternion : [w_val, x_val, y_val, z_val]
-            depth_image : {camera_face : image_array(float)}
-            rgb_image : {camera_face : image_array(uint8)}
+            'drone_name' : (Char)
+            'drone_position' : {x_val, y_val, z_val} (NED)
+            'drone_quaternion' : {w_val, x_val, y_val, z_val}
+            'depth_image' : {
+                'camera_face' : {
+                    id : pixel_value(float)
+                }
+            'rgb_image' : {
+                'camera_face' : {
+                    id : pixel_value(float)
+                }
+            }
         }        
         '''
         parameters = {
@@ -31,12 +38,28 @@ class SavePointCloud:
         parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
         parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
 
+        file_path = "output.txt"
+
+        # 開啟檔案，使用 'w' 模式寫入（如果檔案不存在，則會建立新的檔案；如果已存在，則會被覆蓋）
+        with open(file_path, 'w') as file:
+            # 將字串寫入檔案
+            file.write(str(parameters))
+
         return parameters
     
     def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters):
         pose = airsim_client.simGetVehiclePose(drone_name)
-        parameters["drone_position"] = [pose.position.x_val, pose.position.y_val, pose.position.z_val]
-        parameters["drone_quaternion"] = [pose.orientation.w_val, pose.orientation.x_val, pose.orientation.y_val, pose.orientation.z_val]
+        parameters["drone_position"] = {
+            "x_val" : pose.position.x_val,
+            "y_val" : pose.position.y_val,
+            "z_val" : pose.position.z_val
+        }
+        parameters["drone_quaternion"] = {
+            "w_val" : pose.orientation.w_val,
+            "x_val" : pose.orientation.x_val,
+            "y_val" : pose.orientation.y_val,
+            "z_val" : pose.orientation.z_val
+        }
 
         return parameters
     
@@ -49,7 +72,8 @@ class SavePointCloud:
         for idx, image in enumerate(images):
             if "depth_image" not in parameters.keys():
                 parameters["depth_image"] = {}
-            parameters["depth_image"][camera_list[idx]] = image.image_data_float
+            # convert list to dict
+            parameters["depth_image"][camera_list[idx]] = {index: value for index, value in enumerate(image.image_data_float)}
         
         return parameters
     
