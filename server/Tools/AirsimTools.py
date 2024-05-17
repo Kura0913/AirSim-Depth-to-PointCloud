@@ -27,17 +27,22 @@ class AirsimTools:
         return Rotation.from_quat(quaternion).as_matrix()
     
 
-    def relative2absolute(self, target_position, vehicle_position, vehicle_quaternion):
+    def relative2absolute(self, target_positions, vehicle_position, vehicle_quaternion):
         '''
-        target_position: [x_val, y_val, z_val]the point get from sensor is relative position
-        body_position: [x_val, y_val, z_val]vehicle pose's position
-        body_quaternion: [w_val, x_val, y_val, z_val]vehicle pose's quaternion
+         Args:
+            target_positions (np.ndarray):  shape(3, u, v), u:image height, v: image width
+            vehicle_position (np.ndarray): vehicle pose's position
+            vehicle_quaternion (np.ndarray): vehicle pose's quaternion
+
         ---------------------------------------------------------
-        Return : [x_val, y_val, z_val]
+        Return : 
+            absolute_positions (np.ndarray): Absolute position point cloud information, the shape is (u * v, 3), each row represents an absolute position point, and each column represents the x, y, z coordinates respectively
         '''
-        relative_position_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), np.array(target_position))
-        absolute_position = np.array(vehicle_position) + relative_position_without_rotate.T
-        return absolute_position[0].tolist()
+        target_positions = target_positions.reshape(3, -1) # convert the shape from (3, u, v) to (3, u*v)
+        relative_positions_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), target_positions)
+        absolute_positions = (relative_positions_without_rotate.T + vehicle_position).T
+        absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
+        return absolute_positions
     
     def ned2cartesian(self, n_val, e_val, d_val):
         ned = self.negative_zero_to_zero(n_val, e_val, d_val)

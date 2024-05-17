@@ -7,13 +7,22 @@ class PointCloudInfoTable:
         [x_val, y_val, z_val]
         ]
         '''
-        with DBConnection() as connection:
+        with DBConnection() as connection:  
             cursor = connection.cursor()
-            for point_cloud in point_cloud_list:
-                command = f"INSERT INTO point_cloud_info (point_x, point_y, point_z) VALUES  ('{point_cloud[0]}', '{point_cloud[1]}', '{point_cloud[2]}');"
-                cursor.execute(command)
-                print(f"point_cloud:{point_cloud}")
-        
+            
+            # 使用唯一索引避免重複
+            cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_point 
+            ON point_cloud_info (point_x, point_y, point_z)
+            """)
+
+            # 使用批量插入
+            command = """
+            INSERT OR IGNORE INTO point_cloud_info (point_x, point_y, point_z) 
+            VALUES (?, ?, ?)
+            """
+            cursor.executemany(command, point_cloud_list)
+
             connection.commit()
 
     def select_a_point(self, point_cloud):

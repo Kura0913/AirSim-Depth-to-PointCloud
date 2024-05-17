@@ -40,11 +40,6 @@ class SavePointCloud:
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         '''
-        drone_id = self.set_drone_info(parameters)
-
-        self.start_save_point_cloud(parameters, drone_id)
-
-        return {"status" : "ok", "message" : "save point cloud complete."}
         try:
             drone_id = self.set_drone_info(parameters)
 
@@ -117,34 +112,16 @@ class SavePointCloud:
             camera_matrix = np.dot(k, r_T) # get camera matrix
             camera_matrix_inv = np.linalg.inv(camera_matrix)
             pixel_matrix = pixel_matrix.transpose(2, 0, 1)
-            point_cloud_matrix = np.zeros((4, depth_image_ary.shape[0], depth_image_ary.shape[1]))  # 初始化點雲矩陣
-            for i in range(depth_image_ary.shape[0]):
-                for j in range(depth_image_ary.shape[1]):
-                    pixel_matrix_ij = pixel_matrix[:, i, j]  # 獲取當前像素位置的 4 維向量
-                    point_cloud_matrix[:, i, j] = z[i, j] * np.matmul(camera_matrix_inv, pixel_matrix_ij)
+            point_cloud_matrix = np.zeros((4, depth_image_ary.shape[0], depth_image_ary.shape[1]))  # initialize point cloud matrix
 
-            point_cloud_info = AirsimTools().relative2absolute(point_cloud_matrix, drone_position, drone_quaternion)
+            point_cloud_matrix = z * np.einsum('ij,jkl->ikl', camera_matrix_inv, pixel_matrix)
+            point_cloud_matrix = point_cloud_matrix[:3,:,:]
+            point_cloud_matrix = np.round(point_cloud_matrix, 2)
+
+            point_cloud_info = AirsimTools().relative2absolute(point_cloud_matrix, np.array(drone_position), np.array(drone_quaternion))
             point_cloud_info = point_cloud_info[valid_mask.reshape(-1)]
 
-            
-
-            # for u in range(self.width):
-            #     for v in range(self.height):
-            #         print(f"pixel:{u}, {v}")
-            #         z = depth_image_ary[u, v]/1000 # divide by 1000 to convert z to meters
-            #         # limit the range in 0 to 30 of saved point cloud
-            #         if z == 0 or z > 30:
-            #             continue
-                    
-            #         pixel_matrix = np.array([[u], [v], [1], [1/z]], dtype=object) # set pixel matrix
-
-            #         camera_matrix = k.dot(r_T)
-            #         camera_matrix_inv = np.linalg.inv(camera_matrix) # get inverse camera matrix
-            #         point_cloud_matrix = z * camera_matrix_inv.dot(pixel_matrix)
-            #         point_cloud_info = [point_cloud_matrix[0,0], point_cloud_matrix[1,0], point_cloud_matrix[2,0]] # relative position
-            #         # convert relative position to abs position
-            #         point_cloud_info = AirsimTools().relative2absolute(point_cloud_info, drone_position, drone_quaternion)
-            #         if point_cloud_info not in point_cloud_list and PointCloudInfoTable().select_a_point(point_cloud_info) <= 0:
-            #             point_cloud_list = point_cloud_list + [point_cloud_info]
+            point_cloud_info = point_cloud_info.tolist()
+            point_cloud_list = point_cloud_list + point_cloud_info
 
         PointCloudInfoTable().insert_point_clouds(point_cloud_list)

@@ -38,13 +38,6 @@ class SavePointCloud:
         parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
         parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
 
-        file_path = "output.txt"
-
-        # 開啟檔案，使用 'w' 模式寫入（如果檔案不存在，則會建立新的檔案；如果已存在，則會被覆蓋）
-        with open(file_path, 'w') as file:
-            # 將字串寫入檔案
-            file.write(str(parameters))
-
         return parameters
     
     def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters):
