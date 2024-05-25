@@ -27,24 +27,60 @@ class AirsimTools:
         return Rotation.from_quat(quaternion).as_matrix()
     
 
-    def relative2absolute(self, target_positions, vehicle_position, vehicle_quaternion):
+    def relative2absolute_quaternion(self, target_positions, reference_object_position, reference_object_quaternion, reshape:bool = True):
         '''
          Args:
             target_positions (np.ndarray):  shape(3, u, v), u:image height, v: image width
-            vehicle_position (np.ndarray): vehicle pose's position
-            vehicle_quaternion (np.ndarray): vehicle pose's quaternion
+            reference_object_position (np.ndarray)
+            reference_object_quaternion (np.ndarray)
 
         ---------------------------------------------------------
-        Return : 
-            absolute_positions (np.ndarray): Absolute position point cloud information, the shape is (u * v, 3), each row represents an absolute position point, and each column represents the x, y, z coordinates respectively
+        Return :
+            reshape True: absolute_positions (np.ndarray): Point cloud information, the shape is (u * v, 3)
+            reshape False: absolute_positions (np.ndarray): Point cloud information, the shape is (3, u, v)
         '''
+        u, v = target_positions.shape[1], target_positions.shape[2]
         target_positions = target_positions.reshape(3, -1) # convert the shape from (3, u, v) to (3, u*v)
-        relative_positions_without_rotate = np.dot(Rotation.from_quat(vehicle_quaternion).as_matrix(), target_positions)
-        absolute_positions = (relative_positions_without_rotate.T + vehicle_position).T
-        absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
+        relative_positions_without_rotate = np.dot(Rotation.from_quat(reference_object_quaternion).as_matrix(), target_positions)
+        absolute_positions = (relative_positions_without_rotate.T + reference_object_position).T
+        if reshape:                        
+            absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
+        else:
+            absolute_positions = absolute_positions.reshape(3, u, v) # convert the shape to (3, u, v)
+        return absolute_positions
+    
+    def relative2absolute_rotate(self, target_positions, reference_object_position, reference_object_rotate, reshape:bool = True):
+        '''
+         Args:
+            target_positions (np.ndarray):  shape(3, u, v), u:image height, v: image width
+            reference_object_position (np.ndarray)
+            reference_object_quaternion (np.ndarray)
+
+        ---------------------------------------------------------
+        Return :
+            reshape True: absolute_positions (np.ndarray): Point cloud information, the shape is (u * v, 3)
+            reshape False: absolute_positions (np.ndarray): Point cloud information, the shape is (3, u, v)
+        '''
+        u, v = target_positions.shape[1], target_positions.shape[2]
+        target_positions = target_positions.reshape(3, -1) # convert the shape from (3, u, v) to (3, u*v)
+        relative_positions_without_rotate = np.dot(reference_object_rotate, target_positions)
+        absolute_positions = (relative_positions_without_rotate.T + reference_object_position).T
+        if reshape:                        
+            absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
+        else:
+            absolute_positions = absolute_positions.reshape(3, u, v) # convert the shape to (3, u, v)
         return absolute_positions
     
     def ned2cartesian(self, n_val, e_val, d_val):
         ned = self.negative_zero_to_zero(n_val, e_val, d_val)
         return [ned[1], ned[0], -ned[2]]
     
+    def depth_conversion(self, point_depth, f_x):
+        H = point_depth.shape[0]
+        W = point_depth.shape[1]
+        i_c = np.float(H) / 2 - 1
+        j_c = np.float(W) / 2 - 1
+        columns, rows = np.meshgrid(np.linspace(0, W-1, num=W), np.linspace(0, H-1, num=H))
+        distance_from_center = ((rows - i_c)**2 + (columns - j_c)**2)**(0.5)
+        plane_depth = point_depth / (1 + (distance_from_center / f_x)**2)**(0.5)
+        return plane_depth

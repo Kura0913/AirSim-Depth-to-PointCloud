@@ -6,6 +6,7 @@ from DBController.PointCloudInfoTable import PointCloudInfoTable
 from DBController.DroneInfoTable import DroneInfoTable
 from DBController.ColorInfoTable import ColorInfoTable
 from DBController.CameraInfoTable import CameraInfoTable
+from scipy.spatial.transform import Rotation
 
 MIN_DEPTH_METERS = 0
 MAX_DEPTH_METERS = 100
@@ -13,10 +14,11 @@ MAX_DEPTH_METERS = 100
 class SavePointCloud:
     def __init__(self):
         self.fov = 90
-        self.width = 1920
-        self.height = 1080
-        self.fx = self.width / ( 2 * math.tan(self.fov / 2))
-        self.fy = self.height / ( 2 * math.tan(self.fov / 2))
+        self.width = 960
+        self.height = 540
+        self.fx = self.width / (2 * math.tan(self.fov * math.pi / 360))
+        self.fy = self.fx
+        # self.fy = self.height / ( 2 * math.tan(self.fov / 2))
         self.cx = self.width / 2
         self.cy = self.height / 2
 
@@ -40,6 +42,11 @@ class SavePointCloud:
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         '''
+        drone_id = self.set_drone_info(parameters)
+
+        self.start_save_point_cloud(parameters, drone_id)
+
+        return {"status" : "ok", "message" : "save point cloud complete."}
         try:
             drone_id = self.set_drone_info(parameters)
 
@@ -54,8 +61,9 @@ class SavePointCloud:
         self.fov = drone_info[1]
         self.width = drone_info[2]
         self.height = drone_info[3]
-        self.fx = self.width / ( 2 * math.tan(self.fov / 2))
-        self.fy = self.height / ( 2 * math.tan(self.fov / 2))
+        self.fx = self.width / (2 * math.tan(self.fov * math.pi / 360))
+        self.fy = self.fx
+        # self.fy = self.height / ( 2 * math.tan(self.fov / 2))
         self.cx = self.width / 2
         self.cy = self.height / 2
 
@@ -71,7 +79,7 @@ class SavePointCloud:
         # format quaternion info to list
         for _, value in parameters['drone_quaternion'].items():
             drone_quaternion = drone_quaternion + [value]
-            
+        drone_quaternion = [drone_quaternion[1], drone_quaternion[2], drone_quaternion[3], drone_quaternion[0]] # format quaternion to [x_val, y_val, z_val, w_val]
         drone_position = AirsimTools().ned2cartesian(drone_position[0], drone_position[1], drone_position[2]) # cartesian coordinate system
         
 
@@ -85,43 +93,41 @@ class SavePointCloud:
 
         for camera_face, depth_image in parameters["depth_image"].items():
             # convert dict to list
-            depth_image_ary = [depth_image[index] for index in sorted(depth_image.keys())]
+            depth_image_ary_1d = [depth_image[index] for index in depth_image.keys()]
             camera_info = CameraInfoTable().select_a_camera(drone_id, int(camera_face))
+            camera_translate = [camera_info[0], camera_info[1], camera_info[2]]
+            camera_quaternion = [camera_info[4], camera_info[5], camera_info[6], camera_info[3]]
 
-            depth_image_ary = airsim.list_to_2d_float_array(depth_image_ary, self.width, self.height)
-            depth_image_ary = depth_image_ary.reshape(self.height, self.width)
-            depth_image_ary = depth_image_ary * 1000
-            depth_image_ary = np.clip(depth_image_ary, 0, 65535) # millimeters
+            depth_image_ary_1d = np.array(depth_image_ary_1d, dtype=np.float)
+            depth_image_ary_1d[depth_image_ary_1d > 255] = 255
 
+            depth_image_ary_2d = np.reshape(depth_image_ary_1d, (self.height, self.width))
+            depth_image_ary_2d_converted = AirsimTools().depth_conversion(depth_image_ary_2d, self.fx)
+            cloud_point_matrix, valid_mask = self.generate_point_cloud(depth_image_ary_2d_converted)
+            cloud_point_matrix = cloud_point_matrix.transpose(2, 0, 1)
 
-            ### Extrinsic Parameters
-            # translation matrix
-            t = np.array([[camera_info[0]], [camera_info[1]], [camera_info[2]]])
-            # rotate matrix
-            r = AirsimTools().quaternion2ratate(np.array([camera_info[3], camera_info[4], camera_info[5], camera_info[6]]))
+            total_rotate = np.dot(Rotation.from_quat(np.array(drone_quaternion)).as_matrix(), Rotation.from_quat(np.array(camera_quaternion)).as_matrix())
+            total_translate = np.dot(Rotation.from_quat(np.array(drone_quaternion)).as_matrix(), np.array(camera_translate)) + np.array(drone_position)
+
+            point_cloud_info = AirsimTools().relative2absolute_rotate(cloud_point_matrix, total_translate, total_rotate)
+
+            # cloud_point_matrix_converted = AirsimTools().relative2absolute(cloud_point_matrix, np.array(camera_translate), np.array(camera_quaternion), False)
+            # point_cloud_info = AirsimTools().relative2absolute(cloud_point_matrix_converted, np.array(drone_position), np.array(drone_quaternion))
             
-            r_T = np.hstack((r, t))
-            r_T = np.vstack((r_T, np.array([0, 0, 0, 1])))    
-            
-            u, v = np.meshgrid(np.arange(depth_image_ary.shape[0]), np.arange(depth_image_ary.shape[1]), indexing='ij')
-            z = depth_image_ary / 1000 # divide by 1000 to convert z to meters
-            
-            valid_mask = np.logical_and(z != 0, z <= 30) # only save the depth in 0 to 30 meter
-            
-            pixel_matrix = np.stack([u, v, np.ones_like(u), 1 / z], axis=-1)  # get pixel matrix
-            camera_matrix = np.dot(k, r_T) # get camera matrix
-            camera_matrix_inv = np.linalg.inv(camera_matrix)
-            pixel_matrix = pixel_matrix.transpose(2, 0, 1)
-            point_cloud_matrix = np.zeros((4, depth_image_ary.shape[0], depth_image_ary.shape[1]))  # initialize point cloud matrix
-
-            point_cloud_matrix = z * np.einsum('ij,jkl->ikl', camera_matrix_inv, pixel_matrix)
-            point_cloud_matrix = point_cloud_matrix[:3,:,:]
-            point_cloud_matrix = np.round(point_cloud_matrix, 2)
-
-            point_cloud_info = AirsimTools().relative2absolute(point_cloud_matrix, np.array(drone_position), np.array(drone_quaternion))
+            point_cloud_info = np.round(point_cloud_info, 2)
             point_cloud_info = point_cloud_info[valid_mask.reshape(-1)]
 
             point_cloud_info = point_cloud_info.tolist()
             point_cloud_list = point_cloud_list + point_cloud_info
 
         PointCloudInfoTable().insert_point_clouds(point_cloud_list)
+
+    def generate_point_cloud(self, depth):
+        rows, cols = depth.shape
+        c, r = np.meshgrid(np.arange(cols), np.arange(rows), sparse=True)
+        valid = (depth > 0) & (depth < 255)
+        z = 1000 * np.where(valid, depth / 256.0, np.nan) # convert z to meters
+        x = np.where(valid, z * (c - self.cx) / self.fx, 0)
+        y = np.where(valid, z * (r - self.cy) / self.fy, 0)
+        return np.dstack((x, -y, -z)), valid
+    

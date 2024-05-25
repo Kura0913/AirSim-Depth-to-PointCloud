@@ -59,7 +59,7 @@ class SavePointCloud:
     def get_depth_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters):
         depth_image_request_list = []
         for camera_face in camera_list:
-            depth_image_request_list = depth_image_request_list + [airsim.ImageRequest(self.camera_dict[camera_face], airsim.ImageType.DepthPerspective, True)]
+            depth_image_request_list = depth_image_request_list + [airsim.ImageRequest(self.camera_dict[camera_face], airsim.ImageType.DepthPerspective, pixels_as_float=True, compress=False)]
         images = airsim_client.simGetImages(depth_image_request_list, drone_name)
 
         for idx, image in enumerate(images):
