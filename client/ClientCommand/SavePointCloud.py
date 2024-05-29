@@ -53,7 +53,7 @@ class SavePointCloud:
             "y_val" : pose.orientation.y_val,
             "z_val" : pose.orientation.z_val
         }
-
+        
         return parameters
     
     def get_depth_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters):

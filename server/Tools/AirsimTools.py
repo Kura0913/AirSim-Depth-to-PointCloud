@@ -41,8 +41,8 @@ class AirsimTools:
         '''
         u, v = target_positions.shape[1], target_positions.shape[2]
         target_positions = target_positions.reshape(3, -1) # convert the shape from (3, u, v) to (3, u*v)
-        relative_positions_without_rotate = np.dot(Rotation.from_quat(reference_object_quaternion).as_matrix(), target_positions)
-        absolute_positions = (relative_positions_without_rotate.T + reference_object_position).T
+        relative_positions_without_rotate = np.dot(target_positions.T, Rotation.from_quat(reference_object_quaternion).as_matrix())
+        absolute_positions = (relative_positions_without_rotate + reference_object_position).T
         if reshape:                        
             absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
         else:
@@ -63,9 +63,9 @@ class AirsimTools:
         '''
         u, v = target_positions.shape[1], target_positions.shape[2]
         target_positions = target_positions.reshape(3, -1) # convert the shape from (3, u, v) to (3, u*v)
-        relative_positions_without_rotate = np.dot(reference_object_rotate, target_positions)
-        absolute_positions = (relative_positions_without_rotate.T + reference_object_position).T
-        if reshape:                        
+        relative_positions_without_rotate = np.dot(target_positions.T, reference_object_rotate)
+        absolute_positions = (relative_positions_without_rotate + reference_object_position).T
+        if reshape:
             absolute_positions = absolute_positions.T.reshape(-1, 3) # convert the shape to (u*v, 3)
         else:
             absolute_positions = absolute_positions.reshape(3, u, v) # convert the shape to (3, u, v)
@@ -73,7 +73,7 @@ class AirsimTools:
     
     def ned2cartesian(self, n_val, e_val, d_val):
         ned = self.negative_zero_to_zero(n_val, e_val, d_val)
-        return [ned[1], ned[0], -ned[2]]
+        return [ned[1], -ned[2], -ned[0]]
     
     def depth_conversion(self, point_depth, f_x):
         H = point_depth.shape[0]

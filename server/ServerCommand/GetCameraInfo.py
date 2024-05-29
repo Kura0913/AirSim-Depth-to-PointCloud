@@ -1,5 +1,4 @@
 from DBController.DroneInfoTable import DroneInfoTable
-from DBController.ColorInfoTable import ColorInfoTable
 from DBController.CameraInfoTable import CameraInfoTable
 from Tools.AirsimTools import AirsimTools
 
@@ -41,7 +40,7 @@ class GetCameraInfo:
             if len(CameraInfoTable().select_a_camera(drone_id, camera_face)) <= 0:
                 camera_dict[camera_face] = {}
                 camera_dict[camera_face]["drone_id"] = drone_id
-                camera_dict[camera_face]["translation"] = AirsimTools().ned2cartesian(camera_info_list[0], camera_info_list[1], camera_info_list[2])
+                camera_dict[camera_face]["translation"] = camera_info_list[:3]
                 camera_dict[camera_face]["quaternion"] = camera_info_list[3:]
                 
         CameraInfoTable().insert_a_camera(camera_dict)

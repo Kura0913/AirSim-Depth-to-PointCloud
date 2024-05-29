@@ -9,18 +9,10 @@ necessary_table_to_create = {
                 point_id INTEGER PRIMARY KEY,
                 point_x FLOAT,
                 point_y FLOAT,
-                point_z FLOAT
-
-            );
-        """,
-    "color_info":
-        """
-            CREATE TABLE color_info
-            (
-                point_id INTEIGER,
-                point_R INTEGER,
-                point_G INTEGER,
-                point_B INTEGER
+                point_z FLOAT,
+                color_r FLOAT,
+                color_g FLOAT,
+                color_b FLOAT
 
             );
         """,
