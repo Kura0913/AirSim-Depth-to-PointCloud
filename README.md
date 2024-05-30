@@ -70,7 +70,7 @@ In the "CaptureSettings" of the camera object named "drone_1," the "Width" and "
 
 You can adjust the name of the vehicle according to your preference, and the size of the captured images can be adjusted according to the performance of the computer.
 
-**However, the names of the cameras on the vehicle cannot be changed.**
+**Please do not change the name of the camera. The API will retrieve images based on the camera name.**
 
 ```
 {
@@ -176,10 +176,12 @@ You can adjust the name of the vehicle according to your preference, and the siz
 
 ```
 
-### server folder
+### server
+
 Run main_server.py to start the server. When the server starts, it will output its IP address, which can be used for client connection settings.
 
-### client folder
+### client
+
 Before starting, please open the simulation environment in Unreal Engine. 
 
 Then, run main_client.py to start the client. Upon starting, input the server's IP address to establish a connection with the server. 

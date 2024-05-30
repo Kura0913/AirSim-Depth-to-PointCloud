@@ -74,8 +74,17 @@ def main():
             stop_thread = threading.Thread(target=listen_for_stop)
             stop_thread.start()
             # start the task of getting depth image
-            task_thread = threading.Thread(target=task(selection, client, airsim_client, drone_name, camera_list))
-            task_thread.start()
+            while not stop_event.is_set():
+                try:
+                    func = action_dict[selection]()
+                    parameters = func.execute(airsim_client, drone_name, camera_list)
+                except Exception as e:
+                    print(e)
+                if parameters:
+                    client.send_command(selection, parameters)
+                    recv_message = client.wait_response()
+
+            # task(selection, client, airsim_client, drone_name, camera_list)
 
 if __name__ == "__main__":
     main()

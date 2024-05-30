@@ -1,4 +1,13 @@
 import airsim
+import threading
+
+class TaskThread(threading.Thread):
+        def __init__(self, task):
+            threading.Thread.__init__(self)
+            self.parameters = {}
+            self.task = task
+        def run(self):
+            self.parameters = self.task
 
 class SavePointCloud:
     def __init__(self):
@@ -34,13 +43,28 @@ class SavePointCloud:
         parameters = {
             "drone_name":drone_name
         }
+        threads = [
+            TaskThread(self.get_depth_image(airsim_client, drone_name, camera_list)),
+            TaskThread(self.get_drone_pose(airsim_client, drone_name))
+        ]
+        for i in range(2):
+            threads[i].start()
+        
+        threads[0].join()
+        threads[1].join()
 
-        parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
-        parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
+        depth_image_parameters = threads[0].parameters
+        drone_data_parameters = threads[1].parameters
+
+        parameters = self.merge(parameters, depth_image_parameters)
+        parameters = self.merge(parameters, drone_data_parameters)
+        
+        # parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
+        # parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
 
         return parameters
     
-    def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters):
+    def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters = {}):
         pose = airsim_client.simGetVehiclePose(drone_name)
         parameters["drone_position"] = {
             "x_val" : pose.position.x_val,
@@ -56,7 +80,7 @@ class SavePointCloud:
         
         return parameters
     
-    def get_depth_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters):
+    def get_depth_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters = {}):
         depth_image_request_list = []
         for camera_face in camera_list:
             depth_image_request_list = depth_image_request_list + [airsim.ImageRequest(self.camera_dict[camera_face], airsim.ImageType.DepthPerspective, pixels_as_float=True, compress=False)]
@@ -70,7 +94,7 @@ class SavePointCloud:
         
         return parameters
     
-    def get_scene_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters):
+    def get_scene_image(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list, parameters = {}):
         depth_image_request_list = []
         for camera_face in camera_list:
             depth_image_request_list = depth_image_request_list + [airsim.ImageRequest(self.camera_dict[camera_face], airsim.ImageType.Scene)]
@@ -82,3 +106,8 @@ class SavePointCloud:
             parameters["rgb_image"][camera_list[idx]] = image.image_data_uint8
         
         return parameters
+    
+    def merge(self, dict1, dict2):
+        return {**dict1, **dict2} 
+    
+    

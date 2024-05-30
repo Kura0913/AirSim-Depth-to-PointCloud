@@ -41,6 +41,11 @@ class SavePointCloud:
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         '''
+        drone_id = self.set_drone_info(parameters)
+
+        self.start_save_point_cloud(parameters, drone_id)
+
+        return {"status" : "ok", "message" : "save point cloud complete."}
         try:
             drone_id = self.set_drone_info(parameters)
 
