@@ -91,8 +91,7 @@ class SavePointCloud:
 
             total_rotate = np.dot(Rotation.from_quat(np.array(camera_quaternion)).as_matrix(), Rotation.from_quat(np.array(drone_quaternion)).as_matrix())
             total_translate = np.array(camera_translate) + np.array(drone_position)
-            # total_translate = np.dot(np.array(camera_translate), Rotation.from_quat(np.array(drone_quaternion)).as_matrix()) + np.array(drone_position)
-            print(f'total_translate:{total_translate}')
+            total_translate[1] = -total_translate[1]
 
             point_cloud_info = AirsimTools().relative2absolute_rotate(cloud_point_matrix, total_translate, total_rotate)
 
@@ -111,12 +110,12 @@ class SavePointCloud:
         z = 1000 * np.where(valid, depth / 1000, np.nan)
         x = np.where(valid, z * (c - self.cx) / self.fx, 0)
         y = np.where(valid, z * (r - self.cy) / self.fy, 0)
-        # return np.dstack((-z, x, -y)), valid
-        return np.dstack((z, x, y)), valid
+
+        return np.dstack((z, -x, y)), valid
     
     def ned_to_enu(self, point_cloud_array):
         enu_point_cloud_array = np.empty_like(point_cloud_array)
-        enu_point_cloud_array[:, 0] = -point_cloud_array[:, 1]
+        enu_point_cloud_array[:, 0] = point_cloud_array[:, 1]
         enu_point_cloud_array[:, 1] = -point_cloud_array[:, 2]
         enu_point_cloud_array[:, 2] = point_cloud_array[:, 0]
 

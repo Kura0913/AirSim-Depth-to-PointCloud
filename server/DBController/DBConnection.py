@@ -1,7 +1,6 @@
 import sqlite3
 from threading import Lock
 
-
 class DBConnection:
     db_file_path = str()
     db_lock = Lock()
