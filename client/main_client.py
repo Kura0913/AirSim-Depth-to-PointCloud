@@ -1,5 +1,5 @@
 from ClientCommand.GetCameraInfo import GetCameraInfo
-from ClientCommand.SavePointCloud import SavePointCloud
+from ClientCommand.SavePointCloud import SavePointCloudByDepth
 from SocketClient.SocketClient import SocketClient
 import airsim
 import keyboard
@@ -10,7 +10,7 @@ port = 40005
 
 action_dict = {
     "init" : GetCameraInfo,
-    "save": SavePointCloud
+    "gen-depth": SavePointCloudByDepth
 }
 
 stop_event = threading.Event()

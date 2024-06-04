@@ -1,15 +1,8 @@
 import airsim
 import threading
+from ThreadController.AirSimTaskThread import AirSimTaskThread
 
-class TaskThread(threading.Thread):
-        def __init__(self, task):
-            threading.Thread.__init__(self)
-            self.parameters = {}
-            self.task = task
-        def run(self):
-            self.parameters = self.task
-
-class SavePointCloud:
+class SavePointCloudByDepth:
     def __init__(self):
         self.camera_dict = {
             0:"front_camera",
@@ -44,8 +37,8 @@ class SavePointCloud:
             "drone_name":drone_name
         }
         threads = [
-            TaskThread(self.get_depth_image(airsim_client, drone_name, camera_list)),
-            TaskThread(self.get_drone_pose(airsim_client, drone_name))
+            AirSimTaskThread(self.get_depth_image(airsim_client, drone_name, camera_list)),
+            AirSimTaskThread(self.get_drone_pose(airsim_client, drone_name))
         ]
         for i in range(2):
             threads[i].start()
@@ -58,9 +51,6 @@ class SavePointCloud:
 
         parameters = self.merge(parameters, depth_image_parameters)
         parameters = self.merge(parameters, drone_data_parameters)
-        
-        # parameters = self.get_depth_image(airsim_client, drone_name, camera_list, parameters)
-        # parameters = self.get_drone_pose(airsim_client, drone_name, parameters)
 
         return parameters
     

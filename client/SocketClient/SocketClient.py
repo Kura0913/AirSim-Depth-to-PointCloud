@@ -1,6 +1,5 @@
 import socket 
 import json
-import sys
 
 BUFFER_SIZE = 67108864
 
