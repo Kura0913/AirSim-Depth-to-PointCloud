@@ -1,5 +1,5 @@
 from ClientCommand.GetCameraInfo import GetCameraInfo
-from ClientCommand.SavePointCloud import SavePointCloudByDepth
+from ClientCommand.SavePointCloudByDpeth import SavePointCloudByDepth
 from SocketClient.SocketClient import SocketClient
 import airsim
 import keyboard
@@ -40,7 +40,7 @@ def task(selection, client, airsim_client, drone_name, camera_list):
 def input_selection():
     print("========================================")
     print("init: Initial setting for drone and camera.")
-    print("save: Start get point cloud infomation.")
+    print("gen-depth: Start get point cloud infomation from depth image.")
     print("exit: close client.")
 
     selection = input("Please select a function to execute:")

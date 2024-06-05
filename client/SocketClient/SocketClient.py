@@ -1,5 +1,6 @@
 import socket 
 import json
+import gzip
 
 BUFFER_SIZE = 67108864
 
@@ -11,9 +12,7 @@ class SocketClient:
     # send command to server
     def send_command(self, command, parameters):
         send_data = {'command': command, 'parameters': parameters}
-        # print(f"parameters\' size:{sys.getsizeof(json.dumps(send_data).encode())}")
-        self.client_socket.send(json.dumps(send_data).encode())
-        # print(f"The client sent data => {send_data}")
+        self.client_socket.send(gzip.compress(json.dumps(send_data).encode()))
     # wait response from server
     def wait_response(self):
         data = self.client_socket.recv(BUFFER_SIZE)

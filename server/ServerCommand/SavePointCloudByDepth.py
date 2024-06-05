@@ -11,7 +11,7 @@ MIN_DEPTH_METERS = 0
 MAX_DEPTH_METERS = 100
 LIMIT_DEPTH = 50
 
-class SavePointCloud:
+class SavePointCloudByDepth:
     def __init__(self):
         self.fov = 90
         self.width = 960
@@ -29,11 +29,11 @@ class SavePointCloud:
             'drone_quaternion' : {'w_val', 'x_val', 'y_val', 'z_val'}
             'depth_image' : {
                 'camera_face' : {
-                    id : pixel_value(float)
+                    id : pixel_value
                 }
             'rgb_image' : {
                 'camera_face' : {
-                    id : pixel_value(float)
+                    id : pixel_value
                 }
             }
         }
@@ -41,11 +41,6 @@ class SavePointCloud:
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         '''
-        drone_id = self.set_drone_info(parameters)
-
-        self.start_save_point_cloud(parameters, drone_id)
-
-        return {"status" : "ok", "message" : "save point cloud complete."}
         try:
             drone_id = self.set_drone_info(parameters)
 

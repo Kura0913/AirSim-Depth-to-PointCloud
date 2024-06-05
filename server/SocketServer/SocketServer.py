@@ -2,6 +2,7 @@ from SocketServer import JobDispatcher
 from threading import Thread
 import socket
 import json
+import gzip
 
 BUFFER_SIZE = 67108864
 
@@ -38,7 +39,7 @@ class SocketServer(Thread):
         keep_going = True
         while keep_going:
             try:
-                message = connection.recv(BUFFER_SIZE).strip().decode()
+                message = gzip.decompress(connection.recv(BUFFER_SIZE).strip()).decode()
                 message = json.loads(message)
             except Exception as e:
                 print(f"Exeption happened {e}, {address}")

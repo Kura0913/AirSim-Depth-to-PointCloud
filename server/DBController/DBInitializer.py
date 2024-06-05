@@ -41,6 +41,21 @@ necessary_table_to_create = {
                 quaternion_y FLOAT,
                 quaternion_z FLOAT
             )
+    """,
+    "lidar_info":
+    """
+            CREATE TABLE lidar_info
+            (
+                drone_id INTEGER,
+                lidar_face INTEGER,
+                translation_x FLOAT,
+                translation_y FLOAT,
+                translation_z FLOAT,
+                quaternion_w FLOAT,
+                quaternion_x FLOAT,
+                quaternion_y FLOAT,
+                quaternion_z FLOAT
+            )
     """
 }
 
