@@ -86,14 +86,14 @@ class SavePointCloudByDepth:
 
             depth_image_ary_2d = np.reshape(depth_image_ary_1d, (self.height, self.width))
             depth_image_ary_2d_converted = AirsimTools().depth_conversion(depth_image_ary_2d, self.fx)
-            cloud_point_matrix, valid_mask = self.generate_point_cloud(depth_image_ary_2d_converted)
-            cloud_point_matrix = cloud_point_matrix.transpose(2, 0, 1)
+            point_cloud_matrix, valid_mask = self.generate_point_cloud(depth_image_ary_2d_converted)
+            point_cloud_matrix = point_cloud_matrix.transpose(2, 0, 1)
 
             total_rotate = np.dot(Rotation.from_quat(np.array(camera_quaternion)).as_matrix(), Rotation.from_quat(np.array(drone_quaternion)).as_matrix())
             total_translate = np.array(camera_translate) + np.array(drone_position)
             total_translate[1] = -total_translate[1]
 
-            point_cloud_info = AirsimTools().relative2absolute_rotate(cloud_point_matrix, total_translate, total_rotate)
+            point_cloud_info = AirsimTools().relative2absolute_rotate(point_cloud_matrix, total_translate, total_rotate)
 
             point_cloud_info = np.round(point_cloud_info, 2)
             point_cloud_info = point_cloud_info[valid_mask.reshape(-1)]

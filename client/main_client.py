@@ -1,16 +1,22 @@
-from ClientCommand.GetCameraInfo import GetCameraInfo
+from ClientCommand.GetInitialInfo import GetInitialInfo
 from ClientCommand.SavePointCloudByDpeth import SavePointCloudByDepth
+from ClientCommand.SavePointCloudByLidar import SavePointCloudByLidar
 from SocketClient.SocketClient import SocketClient
+from ClientObject.ClientCameraSensorData import ClientCameraSensorData
 import airsim
 import keyboard
 import threading
 
+
 host = ""
 port = 40005
 
+client_camera_sensor_data = ClientCameraSensorData()
+
 action_dict = {
-    "init" : GetCameraInfo,
-    "gen-depth": SavePointCloudByDepth
+    "init" : GetInitialInfo,
+    "gen-depth": SavePointCloudByDepth,
+    "get-lidar": SavePointCloudByLidar
 }
 
 stop_event = threading.Event()
@@ -25,17 +31,6 @@ def init_setting_airsim_client():
 def listen_for_stop():    
     keyboard.wait('p')
     stop_event.set()
-# loop to get depth image, stop loop when stop event is set.
-def task(selection, client, airsim_client, drone_name, camera_list):
-    while not stop_event.is_set():
-                try:
-                    func = action_dict[selection]()
-                    parameters = func.execute(airsim_client, drone_name, camera_list)
-                except Exception as e:
-                    print(e)
-                if parameters:
-                    client.send_command(selection, parameters)
-                    recv_message = client.wait_response()
 
 def input_selection():
     print("========================================")
@@ -60,9 +55,12 @@ def main():
     client.wait_response()
     drone_name = parameters["drone_name"]
     camera_list = []
+    lidar_list = []
 
-    for camera_face, _ in parameters["camera"].items():
+    for camera_face in parameters["camera"].keys():
         camera_list.append(camera_face)
+    for lidar_face in parameters['lidar'].keys():
+        lidar_list.append(lidar_face)
 
     while True:
         selection = input_selection()        
@@ -84,7 +82,6 @@ def main():
                     client.send_command(selection, parameters)
                     recv_message = client.wait_response()
 
-            # task(selection, client, airsim_client, drone_name, camera_list)
 
 if __name__ == "__main__":
     main()

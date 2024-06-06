@@ -1,6 +1,6 @@
 import airsim
-import threading
 from ThreadController.AirSimTaskThread import AirSimTaskThread
+from ClientObject.ClientCameraSensorData import ClientCameraSensorData
 
 class SavePointCloudByDepth:
     def __init__(self):
@@ -13,7 +13,7 @@ class SavePointCloudByDepth:
             5:"down_camera"
         }
 
-    def execute(self, airsim_client:airsim.MultirotorClient, drone_name, camera_list):
+    def execute(self, airsim_client:airsim.MultirotorClient, drone_name, client_camera_sensor_data:ClientCameraSensorData):
         '''
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
@@ -31,13 +31,13 @@ class SavePointCloudByDepth:
                     id : pixel_value(float)
                 }
             }
-        }        
+        }
         '''
         parameters = {
             "drone_name":drone_name
         }
         threads = [
-            AirSimTaskThread(self.get_depth_image(airsim_client, drone_name, camera_list)),
+            AirSimTaskThread(self.get_depth_image(airsim_client, drone_name, client_camera_sensor_data.camera_list)),
             AirSimTaskThread(self.get_drone_pose(airsim_client, drone_name))
         ]
         for i in range(2):

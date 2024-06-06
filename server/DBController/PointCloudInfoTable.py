@@ -24,6 +24,34 @@ class PointCloudInfoTable:
             cursor.executemany(command, point_cloud_list)
 
             connection.commit()
+    def insert_point_clouds_with_color(self, point_cloud_list, color_list):
+        '''
+        point_cloud_list = [
+        [x_val, y_val, z_val]
+        ]
+        color_list = [
+        [r, g, b]
+        ]
+        '''
+
+        point_cloud_list_with_color = [point + color for point, color in zip(point_cloud_list, color_list)]
+        with DBConnection() as connection:  
+            cursor = connection.cursor()
+            
+            # 使用唯一索引避免重複
+            cursor.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_point 
+            ON point_cloud_info (point_x, point_y, point_z, color_r, color_g, color_b)
+            """)
+
+            # 使用批量插入
+            command = """
+            INSERT OR IGNORE INTO point_cloud_info (point_x, point_y, point_z, color_r, color_g, color_b) 
+            VALUES (?, ?, ?, ?, ?, ?)
+            """
+            cursor.executemany(command, point_cloud_list_with_color)
+
+            connection.commit()
 
     def select_a_point(self, point_cloud):
         '''

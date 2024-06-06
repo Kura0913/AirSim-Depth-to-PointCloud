@@ -15,24 +15,24 @@ class GetInitialInfo:
             height,
             camera:{
                 camera_face : {
-                    translation_x,
-                    translation_y,
-                    translation_z,
-                    quaternion_w,
-                    quaternion_x,
-                    quaternion_y,
-                    quaternion_z
+                    translation_x:float,
+                    translation_y:float,
+                    translation_z:float,
+                    quaternion_w:float,
+                    quaternion_x:float,
+                    quaternion_y:float,
+                    quaternion_z:float
                 }            
             },
             lidar:{
                 lidar_face:{
-                    translation_x,
-                    translation_y,
-                    translation_z,
-                    quaternion_w,
-                    quaternion_x,
-                    quaternion_y,
-                    quaternion_z
+                    translation_x:float,
+                    translation_y:float,
+                    translation_z:float,
+                    quaternion_w:float,
+                    quaternion_x:float,
+                    quaternion_y:float,
+                    quaternion_z:float
                 }
             }
         }
@@ -45,6 +45,7 @@ class GetInitialInfo:
         drone_id = DroneInfoTable().select_a_drone(parameters["drone_name"])[0]
 
         self.get_camera_info(parameters["camera"], drone_id)
+        self.get_lidar_info(parameters["lidar"], drone_id)
 
         result_message = {"status" : "ok", "message" : "Initial settings completed."}
 
