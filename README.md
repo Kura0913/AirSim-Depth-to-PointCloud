@@ -70,7 +70,7 @@ In the "CaptureSettings" of the camera object named "drone_1," the "Width" and "
 
 You can adjust the name of the vehicle according to your preference, and the size of the captured images can be adjusted according to the performance of the computer.
 
-**Please do not change the name of the camera. The API will retrieve images based on the camera name.**
+**Please do not change the names of cameras and lidars. The API will retrieve an image or point cloud based on the name of the camera or lidar.**
 
 ```
 {
@@ -96,22 +96,26 @@ You can adjust the name of the vehicle according to your preference, and the siz
       {
         "ImageType": 1,
         "Width": 1920,
-        "Height": 1080
+        "Height": 1080,
+        "FOV_Degrees": 90
       },
       {
         "ImageType": 2,
         "Width": 1920,
-        "Height": 1080
+        "Height": 1080,
+        "FOV_Degrees": 90
       },
       {
         "ImageType": 3,
         "Width": 1920,
-        "Height": 1080
+        "Height": 1080,
+        "FOV_Degrees": 90
       },
       {
         "ImageType": 5,
         "Width": 1920,
-        "Height": 1080
+        "Height": 1080,
+        "FOV_Degrees": 90
       }
     ]
   },
@@ -155,6 +159,23 @@ You can adjust the name of the vehicle according to your preference, and the siz
             "Roll": 0.0,
             "Yaw": 0.0
         }
+      },
+      "Sensors":{
+        "front_lidar": {
+          "SensorType": 6,
+          "Enabled" : true,
+          "NumberOfChannels": 64,
+          "RotationsPerSecond": 10,
+          "PointsPerSecond": 1500000,
+          "X": 0, "Y": 0, "Z": -1,
+          "Roll": 0, "Pitch": 0, "Yaw" : 0,
+          "VerticalFOVUpper": 26.8,
+          "VerticalFOVLower": -26.8,
+          "HorizontalFOVStart": -45,
+          "HorizontalFOVEnd": 45,
+          "DrawDebugPoints": true,
+          "DataFrame": "SensorLocalFrame"
+        }
       }
     }
   },
@@ -190,4 +211,29 @@ Then, run main_client.py to start the client. Upon starting, input the server's 
 
 Next, input the information of the drone and the image size according to the settings in settings.json.
 
-In the command prompt, type "save" to begin capturing depth maps and sending them to the server. Press the "p" key to stop capturing.
+#### start get data
+Enter the command on the client and it will start to obtain the data.
+
+| **command** | **directions**                                                                                                  |
+|:-----------:|:----------------------------------------------------------------------------------------------------------------|
+| gen-depth   | Start capturing depth maps and sending them to the server. Press the "p" key to stop capturing.                 |
+| gen-lidar   | Start save point cloud infomation of lidar and sending them to the server. Press the "p" key to stop capturing. |
+| exit        | Close client.                                                                                                   |
+
+
+### tool package
+| **file name**                    | **directions**                                                                                                                                                  |
+|:--------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| airsim_drone_keyboard_control.py | Execute this file to control the drone directly through the keyboard                                                                                            |
+| point_cloud_to_asc.py            | After generating point cloud data, you can execute this file to convert the data in the DB to an asc file, and apply color gradient changes based on height.    |
+| point_cloud_to_asc_with_color.py | After generating point cloud data, you can execute this file to convert the data in the DB into an asc file, and assign colors based on the RGB data in the DB. |
+
+## Demo
+|scene|gen-depth|
+|:-------------------------------:|:-------------------------------:|
+|![](./scene.png)|![](./demo1.png)|
+
+
+|segmentation|gen-lidar|
+|:-------------------------------:|:-------------------------------:|
+|![](./segmentation.png)|![](./demo2.png)|

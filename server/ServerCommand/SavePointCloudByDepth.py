@@ -63,7 +63,7 @@ class SavePointCloudByDepth:
         return drone_info[0]
     
     def start_save_point_cloud(self, parameters, drone_id):
-        point_cloud_list = []
+        total_point_cloud_info = []
         drone_position = []
         drone_quaternion = []
         # format position info to list
@@ -99,9 +99,9 @@ class SavePointCloudByDepth:
             point_cloud_info = point_cloud_info[valid_mask.reshape(-1)]
 
             point_cloud_info = self.ned_to_enu(point_cloud_info).tolist()
-            point_cloud_list = point_cloud_list + point_cloud_info
+            total_point_cloud_info = total_point_cloud_info + point_cloud_info
 
-        PointCloudInfoTable().insert_point_clouds(point_cloud_list)
+        PointCloudInfoTable().insert_point_clouds(total_point_cloud_info)
 
     def generate_point_cloud(self, depth):
         rows, cols = depth.shape

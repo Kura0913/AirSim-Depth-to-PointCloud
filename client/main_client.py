@@ -16,7 +16,7 @@ client_camera_sensor_data = ClientCameraSensorData()
 action_dict = {
     "init" : GetInitialInfo,
     "gen-depth": SavePointCloudByDepth,
-    "get-lidar": SavePointCloudByLidar
+    "gen-lidar": SavePointCloudByLidar
 }
 
 stop_event = threading.Event()
@@ -36,6 +36,7 @@ def input_selection():
     print("========================================")
     print("init: Initial setting for drone and camera.")
     print("gen-depth: Start get point cloud infomation from depth image.")
+    print("gen-lidar: Start get point cloud infomation from lidar sensor.")
     print("exit: close client.")
 
     selection = input("Please select a function to execute:")
@@ -50,17 +51,10 @@ def main():
     selection = "init"    
     # initial setting for drone and camera
     func = action_dict[selection]()
-    parameters = func.execute(airsim_client)
+    parameters = func.execute(airsim_client, "", client_camera_sensor_data)
     client.send_command(selection, parameters)
     client.wait_response()
     drone_name = parameters["drone_name"]
-    camera_list = []
-    lidar_list = []
-
-    for camera_face in parameters["camera"].keys():
-        camera_list.append(camera_face)
-    for lidar_face in parameters['lidar'].keys():
-        lidar_list.append(lidar_face)
 
     while True:
         selection = input_selection()        
@@ -75,7 +69,7 @@ def main():
             while not stop_event.is_set():
                 try:
                     func = action_dict[selection]()
-                    parameters = func.execute(airsim_client, drone_name, camera_list)
+                    parameters = func.execute(airsim_client, drone_name, client_camera_sensor_data)
                 except Exception as e:
                     print(e)
                 if parameters:

@@ -73,7 +73,7 @@ class GetInitialInfo:
             for _, value in lidar_info.items():
                 lidar_info_list.append(value)
             
-            if len(CameraInfoTable().select_a_camera(drone_id, lidar_face)) <= 0:
+            if len(LidarInfoTable().select_a_lidar(drone_id, lidar_face)) <= 0:
                 lidar_dict[lidar_face] = {}
                 lidar_dict[lidar_face]["drone_id"] = drone_id
                 lidar_dict[lidar_face]["translation"] = lidar_info_list[:3]

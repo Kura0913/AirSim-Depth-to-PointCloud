@@ -101,6 +101,7 @@ class GetInitialInfo:
                 print(f"Get lidar{lidar_name} info success!!")
             except:
                 print(f"The lidar:{lidar_name} is not exist.")
+        return parameters
 
     def get_image_size(self, parameters):
         while True:

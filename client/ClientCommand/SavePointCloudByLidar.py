@@ -53,7 +53,7 @@ class SavePointCloudByLidar:
         parameters = self.merge(parameters, point_cloud_parameters)
         parameters = self.merge(parameters, drone_data_parameters)
 
-
+        return parameters
 
     def get_lidar_data(self, airsim_client:airsim.MultirotorClient, drone_name, lidar_list, parameters = {}):
         parameters['point_cloud'] = {}
