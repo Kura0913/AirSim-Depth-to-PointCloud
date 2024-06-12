@@ -10,7 +10,7 @@ client.confirmConnection()
 client.enableApiControl(True)
 client.armDisarm(True)
 
-# 獲取初始位置和旋轉信息            wwwwwwwwww
+# 獲取初始位置和旋轉信息
 initial_pose = client.simGetVehiclePose()
 initial_position = initial_pose.position
 initial_rotation = initial_pose.orientation
@@ -26,26 +26,26 @@ while True:
     current_position = current_pose.position
     current_rotation = current_pose.orientation
     # print(f'drone_position:{current_position}')
-    print(f'current_rotation:{current_rotation}')
+    # print(f'current_rotation:{current_rotation}')
     # 監聽鍵盤输入
     if keyboard.is_pressed('w'):
-        client.moveByVelocityZBodyFrameAsync(move_speed, 0, -move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(move_speed, 0, 0, during_time).join()
     elif keyboard.is_pressed('s'):
-        client.moveByVelocityZBodyFrameAsync(-move_speed, 0, -move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(-move_speed, 0, 0, during_time).join()
     elif keyboard.is_pressed('a'):
-        client.moveByVelocityZBodyFrameAsync(0, -move_speed, -move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(0, -move_speed, 0, during_time).join()
     elif keyboard.is_pressed('d'):
-        client.moveByVelocityZBodyFrameAsync(0, move_speed, -move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(0, move_speed, 0, during_time).join()
     elif keyboard.is_pressed('left_shift'):
-        client.moveByVelocityZBodyFrameAsync(0, 0, move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(0, 0, move_speed, during_time).join()
     elif keyboard.is_pressed('space'):
-        client.moveByVelocityZBodyFrameAsync(0, 0, -move_speed, during_time).join()
+        client.moveByVelocityBodyFrameAsync(0, 0, -move_speed, during_time).join()
     elif keyboard.is_pressed('q'):
         client.rotateByYawRateAsync(-rotate_speed, during_time).join()
     elif keyboard.is_pressed('e'):
         client.rotateByYawRateAsync(rotate_speed, during_time).join()
     elif keyboard.is_pressed('x'):
-        lidarData = client.getLidarData('Lidar')
+        lidarData = client.getLidarData('front_lidar')
         print(lidarData)
     else:
         client.moveByVelocityBodyFrameAsync(0, 0, 0, during_time).join()

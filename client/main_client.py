@@ -48,7 +48,7 @@ def main():
     host = input("Please setting the server ip:")
     client = SocketClient(host, port)
 
-    selection = "init"    
+    selection = "init"
     # initial setting for drone and camera
     func = action_dict[selection]()
     parameters = func.execute(airsim_client, "", client_camera_sensor_data)

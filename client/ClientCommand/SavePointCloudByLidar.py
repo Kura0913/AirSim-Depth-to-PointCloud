@@ -20,8 +20,12 @@ class SavePointCloudByLidar:
         ----------------------------------------------
         Return : {
             'drone_name' : (Char)
-            'drone_position' : {'x_val', 'y_val', 'z_val'} (NED)
-            'drone_quaternion' : {'w_val', 'x_val', 'y_val', 'z_val'}
+            'lidar_position' : {
+                'lidar_face':{'x_val', 'y_val', 'z_val'}(NED)
+            } 
+            'lidar_quaternion' : {
+                'lidar_face':{'w_val', 'x_val', 'y_val', 'z_val'}(NED)
+            } 
             'point_cloud' : {
                 'lidar_face' : {
                     id : pixel_value(float)
@@ -38,20 +42,17 @@ class SavePointCloudByLidar:
             "drone_name":drone_name
         }
         threads = [
-            AirSimTaskThread(self.get_lidar_data(airsim_client, drone_name, client_camera_sensor_data.lidar_list)),
-            AirSimTaskThread(self.get_drone_pose(airsim_client, drone_name))
+            AirSimTaskThread(self.get_lidar_data(airsim_client, drone_name, client_camera_sensor_data.lidar_list))
         ]
-        for i in range(2):
+        for i in range(len(threads)):
             threads[i].start()
         
         threads[0].join()
-        threads[1].join()
+
 
         point_cloud_parameters = threads[0].parameters
-        drone_data_parameters = threads[1].parameters
 
         parameters = self.merge(parameters, point_cloud_parameters)
-        parameters = self.merge(parameters, drone_data_parameters)
 
         return parameters
 
@@ -59,28 +60,44 @@ class SavePointCloudByLidar:
         parameters['point_cloud'] = {}
         for lidar_face in lidar_list:
             lidar_data = airsim_client.getLidarData(self.lidar_dict[lidar_face], drone_name)
+            if "lidar_position" not in parameters.keys():
+                parameters['lidar_position'] = {}
+            if  "lidar_quaternion" not in parameters.keys():
+                parameters['lidar_quaternion'] = {}
             if "point_cloud" not in parameters.keys():
                 parameters["point_cloud"] = {}
+            if "seg_info" not in parameters.keys():
+                parameters["seg_info"] = {}
+            
+            parameters["lidar_position"][lidar_face] = {
+                "x_val" : lidar_data.pose.position.x_val,
+                "y_val" : lidar_data.pose.position.y_val,
+                "z_val" : lidar_data.pose.position.z_val
+
+            }
+            parameters["lidar_quaternion"][lidar_face] = {
+            "w_val" : lidar_data.pose.orientation.w_val,
+            "x_val" : lidar_data.pose.orientation.x_val,
+            "y_val" : lidar_data.pose.orientation.y_val,
+            "z_val" : lidar_data.pose.orientation.z_val
+            }
+
             parameters["point_cloud"][lidar_face] = {idx: value for idx, value in enumerate(lidar_data.point_cloud)}
 
-        parameters['seg_info'] = {}
-        for lidar_face in lidar_list:
-            lidar_data = airsim_client.getLidarData(self.lidar_dict[lidar_face], drone_name)
-            if "point_cloud" not in parameters.keys():
-                parameters["seg_info"] = {}
             parameters["seg_info"][lidar_face] = {idx: value for idx, value in enumerate(lidar_data.segmentation)}
+
         return parameters
-            
+        
 
 
-    def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters = {}):
-        pose = airsim_client.simGetVehiclePose(drone_name)
-        parameters["drone_position"] = {
+    def get_lidar_pose(self, lidar_data, parameters = {}):
+        pose = lidar_data.pose
+        parameters["lidar_position"] = {
             "x_val" : pose.position.x_val,
             "y_val" : pose.position.y_val,
             "z_val" : pose.position.z_val
         }
-        parameters["drone_quaternion"] = {
+        parameters["lidar_quaternion"] = {
             "w_val" : pose.orientation.w_val,
             "x_val" : pose.orientation.x_val,
             "y_val" : pose.orientation.y_val,

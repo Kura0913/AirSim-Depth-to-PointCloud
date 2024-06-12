@@ -40,7 +40,7 @@ class SavePointCloudByDepth:
             AirSimTaskThread(self.get_depth_image(airsim_client, drone_name, client_camera_sensor_data.camera_list)),
             AirSimTaskThread(self.get_drone_pose(airsim_client, drone_name))
         ]
-        for i in range(2):
+        for i in range(len(threads)):
             threads[i].start()
         
         threads[0].join()

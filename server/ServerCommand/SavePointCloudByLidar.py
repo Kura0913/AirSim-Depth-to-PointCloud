@@ -19,8 +19,12 @@ class SavePointCloudByLidar:
         """
         parameters : {
             'drone_name' : (Char)
-            'drone_position' : {'x_val', 'y_val', 'z_val'} (NED)
-            'drone_quaternion' : {'w_val', 'x_val', 'y_val', 'z_val'}
+            'lidar_position' : {
+                'lidar_face':{'x_val', 'y_val', 'z_val'}(NED)
+            } 
+            'lidar_quaternion' : {
+                'lidar_face':{'w_val', 'x_val', 'y_val', 'z_val'}(NED)
+            } 
             'point_cloud' : {
                 'lidar_face' : {
                     id : pixel_value(float)
@@ -55,22 +59,19 @@ class SavePointCloudByLidar:
     
     def start_save_point_cloud(self, parameters, drone_id):
         total_point_cloud_info = []
-        total_color_info = []
-        drone_position = []
-        drone_quaternion = []
-
-        # format position info to list
-        for _, value in parameters['drone_position'].items():
-            drone_position = drone_position + [value]
-        # format quaternion info to list
-        for _, value in parameters['drone_quaternion'].items():
-            drone_quaternion = drone_quaternion + [value]
-        drone_quaternion = [drone_quaternion[1], drone_quaternion[2], drone_quaternion[3], drone_quaternion[0]] # format quaternion to [x_val, y_val, z_val, w_val]
+        total_color_info = []        
 
         for lidar_face, point_cloud_dict in parameters['point_cloud'].items():
-            lidar_info = LidarInfoTable().select_a_lidar(drone_id, int(lidar_face))
-            lidar_translate = [lidar_info[0], lidar_info[1], lidar_info[2]]
-            lidar_quaternion = [lidar_info[4], lidar_info[5], lidar_info[6], lidar_info[3]]
+            lidar_position = []
+            lidar_quaternion = []
+
+            # format position info to list
+            for _, value in parameters['lidar_position'][lidar_face].items():
+                lidar_position = lidar_position + [value]
+            # format quaternion info to list
+            for _, value in parameters['lidar_quaternion'][lidar_face].items():
+                lidar_quaternion = lidar_quaternion + [value]
+            lidar_quaternion = [lidar_quaternion[1], lidar_quaternion[2], lidar_quaternion[3], lidar_quaternion[0]] # format quaternion to [x_val, y_val, z_val, w_val]
 
             ori_point_cloud_list = [point_cloud_dict[str(idx)] for idx in range(len(point_cloud_dict))]
             color_info = self.get_point_cloud_color(parameters['seg_info'][lidar_face]) 
@@ -78,8 +79,8 @@ class SavePointCloudByLidar:
             point_cloud_matrix = self.generate_point_cloud(ori_point_cloud_list)
             point_cloud_matrix = point_cloud_matrix.transpose(2, 0, 1)
 
-            total_rotate = np.dot(Rotation.from_quat(np.array(lidar_quaternion)).as_matrix(), Rotation.from_quat(np.array(drone_quaternion)).as_matrix())
-            total_translate = np.array(lidar_translate) + np.array(drone_position)
+            total_rotate = Rotation.from_quat(np.array(lidar_quaternion)).as_matrix()
+            total_translate = np.array(lidar_position)
             total_translate[1] = -total_translate[1]
 
             point_cloud_info = AirsimTools().relative2absolute_rotate(point_cloud_matrix, total_translate, total_rotate)
