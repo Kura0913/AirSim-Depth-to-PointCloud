@@ -1,5 +1,7 @@
 import airsim
 from ClientObject.ClientCameraSensorData import ClientCameraSensorData
+import os
+import json
 
 class GetInitialInfo:
     def __init__(self):
@@ -47,10 +49,19 @@ class GetInitialInfo:
             }
         }
         '''
-        
-        drone_name = input("Please input drone's name:")
-        parameters = {"drone_name" : drone_name}
-        parameters = self.get_image_size(parameters)
+        user_home = os.path.expanduser('~')
+        settings_path = os.path.join(user_home, 'Documents', 'AirSim', 'settings.json')
+        with open(settings_path, 'r') as file:
+            data = json.load(file)
+        if data:
+            vehicle_names = []
+            vehicles = data.get('Vehicles', {})
+            for vehicle, _ in vehicles.items():
+                vehicle_names.append(vehicle)
+
+        drone_name = vehicle_names[0]
+        parameters = {"drone_name" : vehicle_names[0]}
+        parameters = self.get_image_size(parameters, data, drone_name)
         parameters = self.get_camera_info(airsim_client, drone_name, parameters, client_camera_sensor_data)
         parameters = self.get_lidar_info(airsim_client, drone_name, parameters, client_camera_sensor_data)
 
@@ -103,20 +114,24 @@ class GetInitialInfo:
                 print(f"The lidar:{lidar_name} is not exist.")
         return parameters
 
-    def get_image_size(self, parameters):
-        while True:
-            try:
-                width = int(input("Please input the image width(integer):"))
-                parameters["width"] = width
-                break
-            except:
-                print("Please input with integer, try again.")
-        while True:
-            try:
-                height = int(input("Please input the image height(integer):"))
-                parameters["height"] = height
-                break
-            except:
-                print("Please input with integer, try again.")
+    def get_image_size(self, parameters, json_data, vehicle_name):
+        camera_data = json_data['Vehicles'][vehicle_name]['Cameras']['front_camera']["CaptureSettings"][0]
+        parameters["width"] = int(camera_data["Width"])
+        parameters["height"] = int(camera_data["Height"])
+
+        # while True:
+        #     try:
+        #         width = int(input("Please input the image width(integer):"))
+        #         parameters["width"] = width
+        #         break
+        #     except:
+        #         print("Please input with integer, try again.")
+        # while True:
+        #     try:
+        #         height = int(input("Please input the image height(integer):"))
+        #         parameters["height"] = height
+        #         break
+        #     except:
+        #         print("Please input with integer, try again.")
         
         return parameters
