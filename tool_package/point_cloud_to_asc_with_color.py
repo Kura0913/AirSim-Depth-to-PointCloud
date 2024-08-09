@@ -21,7 +21,7 @@ def export_to_asc(db_path, output_path):
     conn.close()
 
 # 示例使用
-db_path = 'D:\\Colosseum\\Colosseum5_2\\PythonClient\\detection_1\\AirSim-Depth-to-PointCloud\\server\\point_cloud.db'  # 替换为你的数据库路径
+db_path = 'D:\\Colosseum\\Colosseum5_2\\PythonClient\\detection_1\\AirSim-Depth-to-PointCloud\\server\\airsim_drone_data.db'  # 替换为你的数据库路径
 output_path = 'cloud_point_with_color.asc'    # 替换为你想要输出的ASC文件路径
 export_to_asc(db_path, output_path)
 print(f"Data has been exported to {output_path}")
