@@ -9,15 +9,15 @@ def interpolate_color(value, min_val, max_val, color1, color2):
     return (r, g, b)
 
 def get_color(norm_y):
-    if norm_y < 0.2:  # 蓝 -> 绿
+    if norm_y < 0.2:  # blue -> green
         color = interpolate_color(norm_y, 0.0, 0.2, (0, 0, 255), (0, 255, 0))
-    elif norm_y < 0.4:  # 绿 -> 黄
+    elif norm_y < 0.4:  # green -> yellow
         color = interpolate_color(norm_y, 0.2, 0.4, (0, 255, 0), (255, 255, 0))
-    elif norm_y < 0.6:  # 黄 -> 红
+    elif norm_y < 0.6:  # yellow -> red
         color = interpolate_color(norm_y, 0.4, 0.6, (255, 255, 0), (255, 0, 0))
-    elif norm_y < 0.8:  # 红 -> 紫
+    elif norm_y < 0.8:  # red -> purple
         color = interpolate_color(norm_y, 0.6, 0.8, (255, 0, 0), (128, 0, 128))
-    else:  # 紫 -> 白
+    else:  # purple -> white
         color = interpolate_color(norm_y, 0.8, 1.0, (128, 0, 128), (255, 255, 255))
     return color
 

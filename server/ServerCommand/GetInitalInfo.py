@@ -1,7 +1,7 @@
 from DBController.DroneInfoTable import DroneInfoTable
 from DBController.CameraInfoTable import CameraInfoTable
 from DBController.LidarInfoTable import LidarInfoTable
-from Tools.AirsimTools import AirsimTools
+import time
 
 class GetInitialInfo:
     def __init__(self):
@@ -37,7 +37,7 @@ class GetInitialInfo:
             }
         }
         '''
-
+        start_time = time.time()
         if len(DroneInfoTable().select_a_drone(parameters["drone_name"])) <= 0:
             DroneInfoTable().insert_a_drone(parameters["drone_name"], parameters["fov"], parameters["width"], parameters["height"])
             print(f"Drone: {parameters['drone_name']} info save success!!")
@@ -46,7 +46,8 @@ class GetInitialInfo:
 
         self.get_camera_info(parameters["camera"], drone_id)
         self.get_lidar_info(parameters["lidar"], drone_id)
-
+        end_time = time.time()
+        print(f"execute time: {end_time - start_time:.4f} seconds.")
         result_message = {"status" : "ok", "message" : "Initial settings completed."}
 
         return result_message

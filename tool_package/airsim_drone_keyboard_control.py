@@ -15,20 +15,21 @@ initial_pose = client.simGetVehiclePose()
 initial_position = initial_pose.position
 initial_rotation = initial_pose.orientation
 
-# 設置移動速度和旋轉速度
+# setting moving speed and rotate speed
 max_speed = 5
 min_speed = 0
-move_speed = 5.0  # 調整為適當的移動速度
+move_speed = 5.0
 during_time = 0.01
-rotate_speed = 100.0  # 調整為適當的旋轉速度
+rotate_speed = 100.0
 while True:
-    # 獲取當前位置和旋轉信息
-    current_pose = client.simGetVehiclePose()
-    current_position = current_pose.position
-    current_rotation = current_pose.orientation
+    # get currentj pose information
+    # current_pose = client.simGetVehiclePose()
+    # current_position = current_pose.position
+    # current_rotation = current_pose.orientation
     # print(f'drone_position:{current_position}')
     # print(f'current_rotation:{current_rotation}')
-    # 監聽鍵盤输入
+
+    # listening the keyboard input
     if keyboard.is_pressed('w'):
         client.moveByVelocityBodyFrameAsync(move_speed, 0, 0, during_time).join()
     elif keyboard.is_pressed('s'):

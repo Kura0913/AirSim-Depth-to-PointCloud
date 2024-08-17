@@ -1,11 +1,11 @@
 import math
 import numpy as np
-import airsim
 from Tools.AirsimTools import AirsimTools
 from DBController.PointCloudInfoTable import PointCloudInfoTable
 from DBController.DroneInfoTable import DroneInfoTable
 from DBController.CameraInfoTable import CameraInfoTable
 from scipy.spatial.transform import Rotation
+import time
 
 MIN_DEPTH_METERS = 0
 MAX_DEPTH_METERS = 100
@@ -41,11 +41,13 @@ class SavePointCloudByDepth:
         camera_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         '''
+        start_time = time.time()
         try:
             drone_id = self.set_drone_info(parameters)
 
             self.start_save_point_cloud(parameters, drone_id)
-
+            end_time = time.time()
+            print(f"execute time: {end_time - start_time:.4f} seconds.")
             return {"status" : "ok", "message" : "save point cloud complete."}
         except Exception as e:
             return{"status" : "fail", "message" : "save point cloud failed, please check the previously sent parameters.", "exception" : str(e)}

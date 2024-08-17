@@ -1,10 +1,10 @@
-import math
 import numpy as np
-import airsim
+import time
 from Tools.AirsimTools import AirsimTools
 from DBController.PointCloudInfoTable import PointCloudInfoTable
 from DBController.DroneInfoTable import DroneInfoTable
 from DBController.LidarInfoTable import LidarInfoTable
+from DBController.MongoDBPointCloudTable import MongoDBPointCloudTable
 from scipy.spatial.transform import Rotation
 
 class SavePointCloudByLidar:
@@ -35,16 +35,13 @@ class SavePointCloudByLidar:
         lidar_face:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         """
-        drone_id = self.set_drone_info(parameters)
-
-        self.start_save_point_cloud(parameters, drone_id)
-
-        return {"status" : "ok", "message" : "save point cloud complete."}
+        start_time = time.time()
         try:
             drone_id = self.set_drone_info(parameters)
-
             self.start_save_point_cloud(parameters, drone_id)
 
+            end_time = time.time()
+            print(f"execute time: {end_time - start_time:.4f} seconds.")
             return {"status" : "ok", "message" : "save point cloud complete."}
         except Exception as e:
             return{"status" : "fail", "message" : "save point cloud failed, please check the previously sent parameters.", "exception" : str(e)}
@@ -86,7 +83,8 @@ class SavePointCloudByLidar:
             total_color_info += color_info
 
         # PointCloudInfoTable().insert_point_clouds(total_point_cloud_info)
-        PointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
+        # PointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)        
+        MongoDBPointCloudTable().upsert_point_clouds_with_color(total_point_cloud_info, total_color_info)
 
     def generate_point_cloud(self, point_cloud_list):
         x = []
