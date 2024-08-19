@@ -84,7 +84,7 @@ class SavePointCloudByLidar:
 
         # PointCloudInfoTable().insert_point_clouds(total_point_cloud_info)
         # PointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)        
-        MongoDBPointCloudTable().upsert_point_clouds_with_color(total_point_cloud_info, total_color_info)
+        MongoDBPointCloudTable().Insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
 
     def generate_point_cloud(self, point_cloud_list):
         x = []

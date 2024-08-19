@@ -45,7 +45,7 @@ class MongoDBConnection():
                 return False
 
     def create_indexes(self, collection_name):
-        """創建索引（如果尚未創建）"""
+        """create_indexes"""
         index_fields = [("x", 1), ("y", 1), ("z", 1)]
         if not self.index_exists(dict(index_fields), collection_name):
             collection = self.database[collection_name]
