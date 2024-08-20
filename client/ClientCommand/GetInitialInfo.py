@@ -4,6 +4,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 import os
 import json
+import time 
 
 class GetInitialInfo:
     def __init__(self):
@@ -17,7 +18,10 @@ class GetInitialInfo:
         }
 
         self.lidar_dict = {
-            "front_lidar":0
+            "front_lidar":0,
+            "back_lidar": 1,
+            "right_lidar": 2,
+            "left_lidar": 3
         }
 
     def execute(self, airsim_client:airsim.MultirotorClient, drone_name:str, client_camera_sensor_data:ClientCameraSensorData):
@@ -51,6 +55,7 @@ class GetInitialInfo:
             }
         }
         '''
+        start_time = time.time()
         user_home = os.path.expanduser('~')
         settings_path = os.path.join(user_home, 'Documents', 'AirSim', 'settings.json')
         with open(settings_path, 'r') as file:
@@ -66,7 +71,9 @@ class GetInitialInfo:
         parameters = self.get_image_size(parameters, data, drone_name)
         parameters = self.get_camera_info(airsim_client, drone_name, parameters, data, client_camera_sensor_data)
         parameters = self.get_lidar_info(parameters, data, client_camera_sensor_data)
-
+        
+        end_time = time.time()
+        print(f"execute time: {end_time - start_time:.4f} seconds.")
         return parameters
         
     def get_camera_info(self, airsim_client:airsim.MultirotorClient, drone_name, parameters, data, client_camera_sensor_data:ClientCameraSensorData):

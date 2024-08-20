@@ -16,7 +16,7 @@ initial_position = initial_pose.position
 initial_rotation = initial_pose.orientation
 
 # setting moving speed and rotate speed
-max_speed = 5
+max_speed = 1
 min_speed = 0
 move_speed = 5.0
 during_time = 0.01

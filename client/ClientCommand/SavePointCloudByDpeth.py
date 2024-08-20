@@ -1,6 +1,7 @@
 import airsim
 from ThreadController.AirSimTaskThread import AirSimTaskThread
 from ClientObject.ClientCameraSensorData import ClientCameraSensorData
+import time
 
 class SavePointCloudByDepth:
     def __init__(self):
@@ -33,6 +34,7 @@ class SavePointCloudByDepth:
             }
         }
         '''
+        start_time = time.time()
         parameters = {
             "drone_name":drone_name
         }
@@ -51,7 +53,8 @@ class SavePointCloudByDepth:
 
         parameters = self.merge(parameters, depth_image_parameters)
         parameters = self.merge(parameters, drone_data_parameters)
-
+        end_time = time.time()
+        print(f"execute time: {end_time - start_time:.4f} seconds.")
         return parameters
     
     def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters = {}):

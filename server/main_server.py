@@ -33,8 +33,6 @@ def main():
     # make sure the collection is empty
     point_cloud_collection.delete_many({})
 
-            
-
     server = SocketServer(job_dispatcher, ip, port)
     server.daemon = True
     server.serve()

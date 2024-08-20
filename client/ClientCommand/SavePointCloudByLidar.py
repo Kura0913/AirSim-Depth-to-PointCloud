@@ -1,5 +1,6 @@
 import airsim
 from ClientObject.ClientCameraSensorData import ClientCameraSensorData
+import time
 
 class SavePointCloudByLidar:
     def __init__(self):
@@ -33,12 +34,15 @@ class SavePointCloudByLidar:
             }
         }
         '''
-
+        
         parameters = {
             "drone_name":drone_name
         }
         drone_pose = airsim_client.simGetVehiclePose(drone_name)
+        start_time = time.time()
         parameters = self.get_lidar_data(airsim_client, drone_name, client_camera_sensor_data.lidar_list, parameters)
+        end_time = time.time()
+        print(f"execute time: {end_time - start_time:.4f} seconds.")
         parameters["drone_position"] = [drone_pose.position.x_val, drone_pose.position.y_val, drone_pose.position.z_val]
         parameters["drone_quaternion"] = [drone_pose.orientation.w_val, drone_pose.orientation.x_val, drone_pose.orientation.y_val, drone_pose.orientation.z_val]
         
@@ -46,15 +50,11 @@ class SavePointCloudByLidar:
 
     def get_lidar_data(self, airsim_client:airsim.MultirotorClient, drone_name, lidar_list, parameters = {}):
         parameters['point_cloud'] = {}
+        parameters["seg_info"] = {}
+        
         for lidar_face in lidar_list:
             lidar_data = airsim_client.getLidarData(self.lidar_dict[lidar_face], drone_name)
-            if "point_cloud" not in parameters.keys():
-                parameters["point_cloud"] = {}
-            if "seg_info" not in parameters.keys():
-                parameters["seg_info"] = {}
-
-            parameters["point_cloud"][lidar_face] = {idx: value for idx, value in enumerate(lidar_data.point_cloud)}
-
-            parameters["seg_info"][lidar_face] = {idx: value for idx, value in enumerate(lidar_data.segmentation)}
+            parameters["point_cloud"][lidar_face] = lidar_data.point_cloud
+            parameters["seg_info"][lidar_face] = lidar_data.segmentation
 
         return parameters
