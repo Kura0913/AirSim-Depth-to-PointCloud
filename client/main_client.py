@@ -28,7 +28,7 @@ def init_setting_airsim_client():
     return client
 
 # waiting for pressing 'p' key to stop
-def listen_for_stop():    
+def listen_for_stop():
     keyboard.wait('p')
     stop_event.set()
 

@@ -21,8 +21,8 @@ class SavePointCloudByDepth:
         ----------------------------------------------
         Return:{
             'drone_name' : (Char)
-            'drone_position' : {x_val, y_val, z_val} (NED)
-            'drone_quaternion' : {w_val, x_val, y_val, z_val}
+            'drone_position' : [x_val, y_val, z_val] (NED)
+            'drone_quaternion' : [w_val, x_val, y_val, z_val]
             'depth_image' : {
                 'camera_face' : {
                     id : pixel_value(float)
@@ -59,17 +59,8 @@ class SavePointCloudByDepth:
     
     def get_drone_pose(self, airsim_client:airsim.MultirotorClient, drone_name, parameters = {}):
         pose = airsim_client.simGetVehiclePose(drone_name)
-        parameters["drone_position"] = {
-            "x_val" : pose.position.x_val,
-            "y_val" : pose.position.y_val,
-            "z_val" : pose.position.z_val
-        }
-        parameters["drone_quaternion"] = {
-            "w_val" : pose.orientation.w_val,
-            "x_val" : pose.orientation.x_val,
-            "y_val" : pose.orientation.y_val,
-            "z_val" : pose.orientation.z_val
-        }
+        parameters["drone_position"] = [pose.position.x_val, pose.position.y_val, pose.position.z_val]
+        parameters["drone_quaternion"] = [pose.orientation.w_val, pose.orientation.x_val, pose.orientation.y_val, pose.orientation.z_val]
         
         return parameters
     

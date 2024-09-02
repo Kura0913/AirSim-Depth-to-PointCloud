@@ -26,31 +26,21 @@ class GetInitialInfo:
 
     def execute(self, airsim_client:airsim.MultirotorClient, drone_name:str, client_camera_sensor_data:ClientCameraSensorData):
         '''
-        Return : {
-            drone_name,
-            fov,
-            width,
-            height,
+        Return: {
+            drone_name: (str),
             camera:{
                 camera_face : {
-                    translation_x:float,
-                    translation_y:float,
-                    translation_z:float,
-                    quaternion_w:float,
-                    quaternion_x:float,
-                    quaternion_y:float,
-                    quaternion_z:float
-                }
+                    translation: (list),
+                    quaternion: (list),
+                    fov,
+                    width,
+                    height,
+                }            
             },
             lidar:{
                 lidar_face:{
-                    translation_x:float,
-                    translation_y:float,
-                    translation_z:float,
-                    quaternion_w:float,
-                    quaternion_x:float,
-                    quaternion_y:float,
-                    quaternion_z:float
+                    translation: (list),
+                    quaternion: (list)
                 }
             }
         }
@@ -68,7 +58,7 @@ class GetInitialInfo:
 
         drone_name = vehicle_names[0]
         parameters = {"drone_name" : vehicle_names[0]}
-        parameters = self.get_image_size(parameters, data, drone_name)
+        # parameters = self.get_image_size(parameters, data, drone_name)
         parameters = self.get_camera_info(airsim_client, drone_name, parameters, data, client_camera_sensor_data)
         parameters = self.get_lidar_info(parameters, data, client_camera_sensor_data)
         
@@ -84,22 +74,20 @@ class GetInitialInfo:
             for camera_name in cameras.keys():
                 camera_info = airsim_client.simGetCameraInfo(camera_name, drone_name)
                 camera_face = self.camera_dict[camera_name]
-                if "fov" not in parameters.keys():
-                    parameters["fov"] = camera_info.fov
                 if camera_face not in parameters["camera"].keys():
                     parameters["camera"][camera_face] = {}
                 if camera_face not in parameters["camera"].keys():
                     parameters["camera"][camera_face] = {}
 
-                parameters["camera"][camera_face]["translation_x"] = cameras = data['Vehicles']['drone_1']['Cameras'][camera_name]["X"]
-                parameters["camera"][camera_face]["translation_y"] = cameras = data['Vehicles']['drone_1']['Cameras'][camera_name]["Y"]
-                parameters["camera"][camera_face]["translation_z"] = cameras = data['Vehicles']['drone_1']['Cameras'][camera_name]["Z"]
-                # camera_quaternion = [x_val, y_val, z_val, w_val]
-                camera_quaternion = self.euler_to_quaternion(data['Vehicles']['drone_1']['Cameras'][camera_name]["Roll"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Pitch"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Yaw"])
-                parameters["camera"][camera_face]["quaternion_w"] = camera_quaternion[3]
-                parameters["camera"][camera_face]["quaternion_x"] = camera_quaternion[0]
-                parameters["camera"][camera_face]["quaternion_y"] = camera_quaternion[1]
-                parameters["camera"][camera_face]["quaternion_z"] = camera_quaternion[2]
+                parameters["camera"][camera_face]["translation"] = [data['Vehicles']['drone_1']['Cameras'][camera_name]["X"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Y"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Z"]]
+                # camera_quaternion: [x_val, y_val, z_val, w_val]
+                camera_quaternion = self.euler_to_quaternion(data['Vehicles']['drone_1']['Cameras'][camera_name]["Roll"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Pitch"], data['Vehicles']['drone_1']['Cameras'][camera_name]["Yaw"]).tolist()
+                parameters["camera"][camera_face]["quaternion"] = [camera_quaternion[3]] + camera_quaternion[:3]
+
+                parameters["camera"][camera_face]["fov"] = data['Vehicles']['drone_1']['Cameras'][camera_name]['CaptureSettings'][0]['FOV_Degrees']
+                parameters["camera"][camera_face]["width"] = data['Vehicles']['drone_1']['Cameras'][camera_name]['CaptureSettings'][0]['Width']
+                parameters["camera"][camera_face]["height"] = data['Vehicles']['drone_1']['Cameras'][camera_name]['CaptureSettings'][0]['Height']
+
                 client_camera_sensor_data.camera_list.append(camera_face)
                 print(f"Get camera: {camera_name} info success!!")
 
@@ -115,15 +103,10 @@ class GetInitialInfo:
                     parameters['lidar'] = {}
                 if lidar_face not in parameters['lidar'].keys():
                     parameters['lidar'][lidar_face] = {}
-                parameters['lidar'][lidar_face]['translation_x'] = data['Vehicles']['drone_1']['Sensors'][lidar_name]["X"]
-                parameters['lidar'][lidar_face]["translation_y"] = data['Vehicles']['drone_1']['Sensors'][lidar_name]["Y"]
-                parameters['lidar'][lidar_face]["translation_z"] = data['Vehicles']['drone_1']['Sensors'][lidar_name]["Z"]
+                parameters['lidar'][lidar_face]['translation'] = [data['Vehicles']['drone_1']['Sensors'][lidar_name]["X"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Y"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Z"]]
                 # lidar_quaternion = [x_val, y_val, z_val, w_val]
-                lidar_quaternion = self.euler_to_quaternion(data['Vehicles']['drone_1']['Sensors'][lidar_name]["Roll"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Pitch"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Yaw"])
-                parameters['lidar'][lidar_face]["quaternion_w"] = lidar_quaternion[3]
-                parameters['lidar'][lidar_face]["quaternion_x"] = lidar_quaternion[0]
-                parameters['lidar'][lidar_face]["quaternion_y"] = lidar_quaternion[1]
-                parameters['lidar'][lidar_face]["quaternion_z"] = lidar_quaternion[2]
+                lidar_quaternion = self.euler_to_quaternion(data['Vehicles']['drone_1']['Sensors'][lidar_name]["Roll"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Pitch"], data['Vehicles']['drone_1']['Sensors'][lidar_name]["Yaw"]).tolist()
+                parameters['lidar'][lidar_face]["quaternion"] = [lidar_quaternion[3]] + lidar_quaternion[:3]
 
                 client_camera_sensor_data.lidar_list.append(lidar_face)
                 print(f"Get lidar: {lidar_name} info success!!")
