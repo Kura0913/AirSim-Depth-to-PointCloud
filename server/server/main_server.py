@@ -1,8 +1,6 @@
 from SocketServer.SocketServer import SocketServer
 from SocketServer.JobDispatcher import JobDisPatcher
-from DBController.DBConnection import DBConnection
 from DBController.DBInitializer import DBInitializer
-import os
 import socket
 
 sqlite_db_path = "../vehicle_info.db"
@@ -13,12 +11,12 @@ def main():
     s.connect(("8.8.8.8", 80))
     ip = s.getsockname()[0]
     port = 40005
-    # initial sqlite database for save drone infiormation
-    if os.path.exists(sqlite_db_path):
-        os.remove(sqlite_db_path)
-    DBConnection.db_file_path = sqlite_db_path
-    DBInitializer().execute()
+    # connect to mysql database
+    mysql_db = DBInitializer()
+    mysql_db.execute()
+
     job_dispatcher = JobDisPatcher()
+
 
     server = SocketServer(job_dispatcher, ip, port)
     server.daemon = True

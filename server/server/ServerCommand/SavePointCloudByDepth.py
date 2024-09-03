@@ -8,7 +8,7 @@ LIMIT_DEPTH = 50
 
 class SavePointCloudByDepth:
     def __init__(self):
-        self.file_path = "./json_file/depth/"
+        self.file_path = "../json_file/depth/"
 
     def execute(self, parameters):
         '''

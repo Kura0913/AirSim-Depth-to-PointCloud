@@ -9,19 +9,12 @@ import time
 class GetInitialInfo:
     def __init__(self):
         self.camera_dict = {
-            "front_camera":0,
-            # "back_camera":1,
-            # "right_camera":2,
-            # "left_camera":3,
-            # "up_camera":4,
-            # "down_camera":5
+            "front_camera":0
         }
 
         self.lidar_dict = {
             "front_lidar":0,
             "back_lidar": 1,
-            "right_lidar": 2,
-            "left_lidar": 3
         }
 
     def execute(self, airsim_client:airsim.MultirotorClient, drone_name:str, client_camera_sensor_data:ClientCameraSensorData):

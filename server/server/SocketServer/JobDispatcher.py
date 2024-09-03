@@ -1,13 +1,15 @@
 from ServerCommand.GetInitalInfo import GetInitialInfo
 from ServerCommand.SavePointCloudByDepth import SavePointCloudByDepth
 from ServerCommand.SavePointCloudByLidar import SavePointCloudByLidar
+from ServerCommand.DBClearer import DBClearer
 
 class JobDisPatcher:
     def __init__(self):
         self.action = {
-            "init":GetInitialInfo,
-            "gen-depth":SavePointCloudByDepth,
-            "gen-lidar":SavePointCloudByLidar
+            0:GetInitialInfo,
+            1:DBClearer,
+            2:SavePointCloudByDepth,
+            3:SavePointCloudByLidar
         }
 
     def job_execute(self, command, parameters):

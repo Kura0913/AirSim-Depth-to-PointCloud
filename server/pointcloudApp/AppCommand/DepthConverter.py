@@ -1,7 +1,7 @@
 from Tools.AirsimTools import AirsimTools
-from DBController.SqliteDroneInfoTable import DroneInfoTable
-from DBController.SqliteCameraInfoTable import CameraInfoTable
-from DBController.MysqlPointCloudInfoTable import MysqlPointCloudInfoTable
+from DBController.DroneInfoTable import DroneInfoTable
+from DBController.CameraInfoTable import CameraInfoTable
+from DBController.PointCloudInfoTable import PointCloudInfoTable
 from scipy.spatial.transform import Rotation
 from concurrent.futures import ThreadPoolExecutor
 import time
@@ -68,7 +68,7 @@ class DepthConverter:
                 if color_info:
                     total_color_info.extend(color_info)
 
-        MysqlPointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
+        PointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
 
     def process_camera(self, camera_face, parameters, drone_id, drone_position, drone_rotation_matrix):
         camera_info_dict = CameraInfoTable().select_a_camera(drone_id, int(camera_face))

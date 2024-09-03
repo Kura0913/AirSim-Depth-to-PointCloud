@@ -4,10 +4,8 @@ import threading
 from AppCommand.DepthConverter import DepthConverter
 from AppCommand.PointcloudConverter import PointcloudConverter
 from watchdog.observers import Observer
-from DBController.SqliteDBConnection import DBConnection
-from DBController.SqliteDBInitializer import DBInitializer
-from DBController.MysqlDBInitializer import MysqlDBInitializer
-from DBController.MysqlPointCloudInfoTable import MysqlPointCloudInfoTable
+from DBController.DBInitializer import DBInitializer
+from DBController.PointCloudInfoTable import PointCloudInfoTable
 
 
 stop_event = threading.Event()
@@ -49,11 +47,8 @@ def main():
     stop_event = threading.Event()
     stop_thread = threading.Thread(target=listen_for_stop)
     stop_thread.start()
-    # connect to sqlite
-    DBConnection.db_file_path = "../vehicle_info.db"
-    DBInitializer().execute()
     # connect to mysql
-    mysql_db = MysqlDBInitializer()
+    mysql_db = DBInitializer()
     mysql_db.execute()
     # initial selection
     selection = 0
@@ -68,7 +63,7 @@ def main():
         elif selection == 3:
             clear_processed_files()
         elif selection == 4:
-            MysqlPointCloudInfoTable().delete_all_points()
+            PointCloudInfoTable().delete_all_points()
         elif selection == 1:
             json_path = "../json_file/depth/"
             processor = func_dict[1]

@@ -2,23 +2,23 @@ from DBController.DBConnection import DBConnection
 
 class DroneInfoTable:
     def insert_a_drone(self, drone_name):
-        command = f"INSERT INTO drone_info (name) VALUES ('{drone_name}');"
+        command = "INSERT INTO drone_info (name) VALUES (%s);"
         
         with DBConnection() as connection:
             cursor = connection.cursor()
-            cursor.execute(command)
+            cursor.execute(command, (drone_name,))
             connection.commit()
-
 
     def select_a_drone(self, drone_name):
         '''
         Return: [drone_id]
         '''
-        command = f"SELECT * FROM drone_info WHERE name='{drone_name}';"
+        command = "SELECT * FROM drone_info WHERE name=%s;"
         with DBConnection() as connection:
-            cursor = connection.cursor()
-            cursor.execute(command)
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(command, (drone_name,))
             record_from_db = cursor.fetchall()
+
         drone_info = []
         if len(record_from_db) > 0:
             for row in record_from_db:

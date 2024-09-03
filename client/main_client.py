@@ -14,9 +14,10 @@ port = 40005
 client_camera_sensor_data = ClientCameraSensorData()
 
 action_dict = {
-    "init" : GetInitialInfo,
-    "gen-depth": SavePointCloudByDepth,
-    "gen-lidar": SavePointCloudByLidar
+    0: GetInitialInfo,
+    1: "clear DB data",
+    2: SavePointCloudByDepth,
+    3: SavePointCloudByLidar
 }
 
 stop_event = threading.Event()
@@ -34,12 +35,16 @@ def listen_for_stop():
 
 def input_selection():
     print("========================================")
-    print("init: Initial setting for drone and camera.")
-    print("gen-depth: Start get point cloud infomation from depth image.")
-    print("gen-lidar: Start get point cloud infomation from lidar sensor.")
-    print("exit: close client.")
+    print("0: Initial setting for drone, camera and lidar.")
+    print("1: Clear data in DB.")
+    print("2: Start get point cloud infomation from depth image.")
+    print("3: Start get point cloud infomation from lidar sensor.")
+    print("others: close client.")
 
-    selection = input("Please select a function to execute:")
+    try:
+        selection = int(input("Please select a function to execute:"))
+    except:
+        return -1
     
     return selection
 
@@ -48,7 +53,7 @@ def main():
     host = input("Please setting the server ip:")
     client = SocketClient(host, port)
 
-    selection = "init"
+    selection = 0
     # initial setting for drone and camera
     func = action_dict[selection]()
     parameters = func.execute(airsim_client, "", client_camera_sensor_data)
@@ -61,6 +66,14 @@ def main():
         if selection not in action_dict.keys():
             client.send_command(selection, dict())
             break
+        elif selection == 0:
+            func = action_dict[selection]()
+            parameters = func.execute(airsim_client, drone_name, client_camera_sensor_data)
+            client.send_command(selection, parameters)
+            client.wait_response()
+        elif selection == 1:
+            client.send_command(selection, {"message": "clear DB"})
+            client.wait_response()
         else:
             # set stop loop task
             stop_thread = threading.Thread(target=listen_for_stop)

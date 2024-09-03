@@ -1,8 +1,8 @@
 from Tools.AirsimTools import AirsimTools
-from DBController.SqliteDroneInfoTable import DroneInfoTable
-from DBController.SqliteLidarInfoTable import LidarInfoTable
-from DBController.SqliteCameraInfoTable import CameraInfoTable
-from DBController.MysqlPointCloudInfoTable import MysqlPointCloudInfoTable
+from DBController.DroneInfoTable import DroneInfoTable
+from DBController.LidarInfoTable import LidarInfoTable
+from DBController.CameraInfoTable import CameraInfoTable
+from DBController.PointCloudInfoTable import PointCloudInfoTable
 from scipy.spatial.transform import Rotation
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
@@ -40,11 +40,6 @@ class PointcloudConverter:
         front: 0, back: 1, right: 2, left: 3, up: 4, down: 5
         """
         start_time = time.time()
-        drone_id = self.set_drone_info(parameters)
-        self.start_save_point_cloud(parameters, drone_id)
-        end_time = time.time()
-        print(f"execute time: {end_time - start_time:.4f} seconds.")
-        return {"status" : "ok", "message" : "save point cloud complete."}
         try:
             drone_id = self.set_drone_info(parameters)
             self.start_save_point_cloud(parameters, drone_id)
@@ -80,7 +75,7 @@ class PointcloudConverter:
         total_point_cloud_info = total_point_cloud_info.tolist()
         total_color_info = total_color_info.tolist()
 
-        MysqlPointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
+        PointCloudInfoTable().insert_point_clouds_with_color(total_point_cloud_info, total_color_info)
 
     def process_lidar(self, lidar_face, parameters, drone_id, drone_rotation_matrix, drone_position):
             point_cloud_list = parameters['point_cloud'][lidar_face]
@@ -123,7 +118,7 @@ class PointcloudConverter:
         
         return point_cloud_color_info
 
-    def get_popint_cloud_color_info(self, camera_face, point_cloud_list, rgb_image):
+    def get_point_cloud_color_info(self, camera_face, point_cloud_list, rgb_image):
         color_info = []
 
         height, width = 540, 960

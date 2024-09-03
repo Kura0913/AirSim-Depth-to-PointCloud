@@ -4,7 +4,7 @@ import json
 
 class SavePointCloudByLidar:
     def __init__(self):
-        self.file_path = "./json_file/pointcloud/"
+        self.file_path = "../json_file/pointcloud/"
         self.color_dict = {}
         with open("seg_rgbs.txt", 'r') as file:
             for line in file:
