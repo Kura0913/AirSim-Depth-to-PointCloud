@@ -70,29 +70,28 @@ def main():
         elif selection == 2:
             json_path = "../json_file/pointcloud/"
             processor = func_dict[2]
-        # 創建對應的JSON文件處理器
+        # Create json file handler
         if selection in [1, 2]:
             event_handler = JsonFileHandler(json_path, processor)
             observer = Observer()
             observer.schedule(event_handler, json_path, recursive=False)
 
-            # 先處理已存在的文件
+            # process the file in the path
             event_handler.process_existing_files()
 
-            # 開始監控新的文件
+            # start listen to new json file
             observer.start()
             print(f"Started processing JSON files in: {json_path}")
 
-            # 等待stop_event觸發
             while not stop_event.is_set():
                 pass
 
-            # 停止觀察者
+            # stop observer
             observer.stop()
             observer.join()
             print("Stopped processing.")
 
-        # 重置選擇
+        # reset selection
         selection = 0
 
     stop_event.set()

@@ -17,6 +17,7 @@ This tool is used to conduct experiments by converting depth maps into point clo
 * wheel 0.42.0
 * keyboard
 * opencv-python
+* mysql-connector-python
 
 ### Installation
 
