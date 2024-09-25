@@ -41,6 +41,6 @@ class SavePointCloudByDepth:
     
     def save_json_file(self, parameters):
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        filename = f"data_{timestamp}.json"
+        filename = f"data_{timestamp}_{parameters['drone_name']}.json"
         with open(self.file_path + filename, 'w', encoding='utf-8') as json_file:
             json.dump(parameters, json_file, ensure_ascii=False, indent=4)
